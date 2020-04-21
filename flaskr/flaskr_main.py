@@ -4,12 +4,15 @@ from flask import Flask, request, session, g, redirect, url_for, abort, \
     render_template, flash
 from flaskr import configration
 from flaskr.mysql_operation.mysql_connection import MysqlConnection
+from flaskr.paras_assert.parameters_assert import check_username_valid
+from flaskr.sql_content.sql_commond import SqlCom
 
 app = Flask(__name__)
 app.config.from_object(configration)
 
 
 db = MysqlConnection(host='127.0.0.1', username='root', password='root', database='flask')
+command = SqlCom(db)
 
 
 @app.route('/')
@@ -36,11 +39,11 @@ def add_entry():
 def login():
     error = None
     if request.method == 'POST':
+        username = request.form['username']
         user_pwd = hashlib.md5(request.form['password'].encode()).hexdigest()
-        print(user_pwd)
-        if request.form['username'] != app.config['USERNAME']:
+        if not username or not check_username_valid(username):
             error = 'Invalid username'
-        elif user_pwd != app.config['PASSWORD']:
+        elif user_pwd != command.get_pwd(username):
             error = 'Invalid password'
         else:
             session['logged_in'] = True
