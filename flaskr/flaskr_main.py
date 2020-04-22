@@ -6,6 +6,7 @@ from flaskr import configration
 from flaskr.mysql_operation.mysql_connection import MysqlConnection
 from flaskr.paras_assert.parameters_assert import check_username_valid
 from flaskr.sql_content.sql_commond import SqlCom
+import datetime
 
 app = Flask(__name__)
 app.config.from_object(configration)
@@ -17,9 +18,8 @@ command = SqlCom(db)
 
 @app.route('/')
 def show_entries():
-    result = db.select_data("select title, text from entries order by id desc")
-    # cur = g.db.execute('select title, text from entries order by id desc')
-    entries = [dict(title=row[0], text=row[1]) for row in result]
+    result = db.select_data("select title, text, id from entries order by id desc")
+    entries = [dict(title=row[0], text=row[1], id=row[2]) for row in result]
     return render_template('show_entries.html', entries=entries)
 
 
@@ -27,9 +27,29 @@ def show_entries():
 def add_entry():
     if not session.get('logged_in'):
         abort(401)
-    print(request.form['title'], request.form['text'])
-    sql = "insert into entries (title, text, updateBy) values ('{title}', '{text}', '{user}')"
-    sql1 = sql.format(title=request.form['title'], text=request.form['text'], user=app.config['USERNAME'])
+    if not request.form['title'] or not request.form['text']:
+        flash('title or text cannot be empty')
+        return redirect(url_for('show_entries'))
+    username = session.get('username')
+    sql = "insert into entries (title, text, updateBy, createTime) values ('{title}', '{text}', '{user}', '{datetime}')"
+    sql1 = sql.format(title=request.form['title'], text=request.form['text'],
+                      user=username, datetime=datetime.datetime.now())
+    db.connect_db(sql1)
+    flash('New entry was successfully posted')
+    return redirect(url_for('show_entries'))
+
+
+@app.route('/update', methods=['POST'])
+def update_entry():
+    if not session.get('logged_in'):
+        abort(401)
+    if not request.form['title'] or not request.form['text']:
+        flash('title or text cannot be empty')
+        return redirect(url_for('show_entries'))
+    username = session.get('username')
+    sql = "insert into entries (title, text, updateBy, createTime) values ('{title}', '{text}', '{user}', '{datetime}')"
+    sql1 = sql.format(title=request.form['title'], text=request.form['text'],
+                      user=username, datetime=datetime.datetime.now())
     db.connect_db(sql1)
     flash('New entry was successfully posted')
     return redirect(url_for('show_entries'))
@@ -47,6 +67,7 @@ def login():
             error = 'Invalid password'
         else:
             session['logged_in'] = True
+            session['username'] = username
             flash('You were logged in')
             return redirect(url_for('show_entries'))
     return render_template('login.html', error=error)
