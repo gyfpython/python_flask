@@ -25,18 +25,28 @@ def show_entries():
 
 @app.route('/add', methods=['POST'])
 def add_entry():
-    if not session.get('logged_in'):
-        abort(401)
-    if not request.form['title'] or not request.form['text']:
-        flash('title or text cannot be empty')
+    try:
+        if not session.get('logged_in'):
+            abort(401)
+        if not request.form['title'] or not request.form['text']:
+            flash('title or text cannot be empty')
+            return redirect(url_for('show_entries'))
+        print(request.form['catalog'])
+        if int(request.form['catalog']) not in [0, 1, 2]:
+            flash('catalog error')
+            return redirect(url_for('show_entries'))
+        username = session.get('username')
+        sql = "insert into entries (title, text, updateBy, createTime, Catalogs) " \
+              "values ('{title}', '{text}', '{user}', '{datetime}', '{catalogs}')"
+        sql1 = sql.format(title=request.form['title'], text=request.form['text'],
+                          user=username, datetime=datetime.datetime.now(), catalogs=int(request.form['catalog']))
+        db.connect_db(sql1)
+        flash('New entry was successfully posted')
         return redirect(url_for('show_entries'))
-    username = session.get('username')
-    sql = "insert into entries (title, text, updateBy, createTime) values ('{title}', '{text}', '{user}', '{datetime}')"
-    sql1 = sql.format(title=request.form['title'], text=request.form['text'],
-                      user=username, datetime=datetime.datetime.now())
-    db.connect_db(sql1)
-    flash('New entry was successfully posted')
-    return redirect(url_for('show_entries'))
+    except Exception as error:
+        print(error)
+        flash('error')
+        return redirect(url_for('show_entries'))
 
 
 @app.route('/update', methods=['POST'])
