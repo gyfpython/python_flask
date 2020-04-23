@@ -9,10 +9,12 @@ from flaskr.sql_content.sql_commond import SqlCom
 import datetime
 
 app = Flask(__name__)
+app.permanent_session_lifetime = datetime.timedelta(seconds=2*60*60)
 app.config.from_object(configration)
 
 
-db = MysqlConnection(host='127.0.0.1', username='root', password='root', database='flask')
+db = MysqlConnection(host=app.config['MYSQL_HOST'], username=app.config['MYSQL_USER'],
+                     password=app.config['MYSQL_PASSWORD'], database=app.config['MYSQL_DB'])
 command = SqlCom(db)
 
 
@@ -76,6 +78,7 @@ def login():
         elif user_pwd != command.get_pwd(username):
             error = 'Invalid password'
         else:
+            session.permanent = True
             session['logged_in'] = True
             session['username'] = username
             flash('You were logged in')
@@ -86,6 +89,7 @@ def login():
 @app.route('/logout')
 def logout():
     session.pop('logged_in', None)
+    session.pop('username', None)
     flash('You were logged out')
     return redirect(url_for('show_entries'))
 
