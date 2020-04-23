@@ -20,7 +20,4 @@ class SqlCom(object):
         return None
 
 
-db = MysqlConnection(host='127.0.0.1', username='root', password='root', database='flask')
-SqlCom(db).check_username('test')
-SqlCom(db).get_pwd('test')
 

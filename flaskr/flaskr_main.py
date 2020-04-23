@@ -33,8 +33,7 @@ def add_entry():
         if not request.form['title'] or not request.form['text']:
             flash('title or text cannot be empty')
             return redirect(url_for('show_entries'))
-        print(request.form['catalog'])
-        if int(request.form['catalog']) not in [0, 1, 2]:
+        if int(request.form['catalog']) not in [0, 1, 2, 3, 4]:
             flash('catalog error')
             return redirect(url_for('show_entries'))
         username = session.get('username')
