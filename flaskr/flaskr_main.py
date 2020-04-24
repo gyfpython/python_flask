@@ -1,7 +1,8 @@
-# all the imports
 import hashlib
 from flask import Flask, request, session, g, redirect, url_for, abort, \
     render_template, flash
+from sqlalchemy import create_engine
+
 from flaskr import configration
 from flaskr.mysql_operation.mysql_connection import MysqlConnection
 from flaskr.paras_assert.parameters_assert import check_username_valid
@@ -12,7 +13,7 @@ app = Flask(__name__)
 app.permanent_session_lifetime = datetime.timedelta(seconds=2*60*60)
 app.config.from_object(configration)
 
-
+# engine = create_engine('mysql+mysqlconnector://root:root@127.0.0.1:3306/flask')
 db = MysqlConnection(host=app.config['MYSQL_HOST'], username=app.config['MYSQL_USER'],
                      password=app.config['MYSQL_PASSWORD'], database=app.config['MYSQL_DB'])
 command = SqlCom(db)
@@ -23,6 +24,25 @@ def show_entries():
     result = db.select_data("select title, text, id from entries order by id desc")
     entries = [dict(title=row[0], text=row[1], id=row[2]) for row in result]
     return render_template('show_entries.html', entries=entries)
+
+
+@app.route('/search', methods=['POST'])
+def filter_by_catalog_id():
+    try:
+        if not session.get('logged_in'):
+            abort(401)
+        if int(request.form['catalog']) not in [0, 1, 2, 3, 4]:
+            print('catalog error')
+            return redirect(url_for('show_entries'))
+        else:
+            result = db.select_data("select title, text, id from entries where Catalogs = %d order by id desc"
+                                    % int(request.form['catalog']))
+            entries = [dict(title=row[0], text=row[1], id=row[2]) for row in result]
+            return render_template('show_entries.html', entries=entries)
+    except Exception as error:
+        print(error)
+        return redirect(url_for('show_entries'))
+
 
 
 @app.route('/add', methods=['POST'])
@@ -91,15 +111,6 @@ def logout():
     session.pop('username', None)
     flash('You were logged out')
     return redirect(url_for('show_entries'))
-
-
-@app.route('/get_all_rows')
-def get_all_rows():
-    result = db.select_data("SELECT value FROM test_table")
-    results = []
-    for raw in result:
-        results.append(raw[0])
-    return '/'.join(results)
 
 
 if __name__ == '__main__':

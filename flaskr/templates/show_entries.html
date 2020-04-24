@@ -2,6 +2,7 @@
 <script type="text/javascript" src="time_operation.js"></script>
 {% block body %}
 {% if session.logged_in %}
+<h2>Add Note</h2>
 <form action="{{ url_for('add_entry') }}" method=post class=add-entry>
     <dl>
         <dt>Note Title:
@@ -16,12 +17,25 @@
             <option value=3>performance</option>
             <option value=4>security</option>
         </select>
-        <dd><input type=submit value=Share>
+        <input type=submit value=Submit>
+    </dl>
+</form>
+<h2>Search Conditions</h2>
+<form action="{{ url_for('filter_by_catalog_id') }}" method=post class=filter-by-catalog-id>
+    <dl>
+        <dd><select id="filter_catalog" name=catalog>chengdu
+            <option value=0>test</option>
+            <option value=1>mysql</option>
+            <option value=2>python</option>
+            <option value=3>performance</option>
+            <option value=4>security</option>
+        </select>
+        <input type=submit value=Submit>
     </dl>
 </form>
 <ul class=entries>
     {% for entry in entries %}
-    <li><h2>{{ entry.title }}</h2>{{ entry.text|safe }}
+    <li><h3>{{ entry.title }}</h3>{{ entry.text|safe }}
         {% else %}
     <li><em>Unbelievable.  No entries here so far</em>
         {% endfor %}

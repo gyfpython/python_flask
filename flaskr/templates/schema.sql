@@ -24,3 +24,14 @@ create unique index uk_username
 	on users (username);
 
 ALTER TABLE flask.entries ADD COLUMN `Catalogs` int(11) NOT NULL DEFAULT '0' COMMENT '0:test;1:mysql;2:python...' ;
+
+CREATE TABLE `flask`.`catalogs` (
+  `id` INT NOT NULL AUTO_INCREMENT,
+  `catalogName` VARCHAR(45) NOT NULL COMMENT 'all catalogs of notes',
+  `catalogNumber` INT NOT NULL,
+  `createTime` DATETIME NOT NULL DEFAULT '1970-01-01 00:00:00',
+  `createBy` VARCHAR(45) NOT NULL,
+  PRIMARY KEY (`id`),
+  UNIQUE INDEX `id_UNIQUE` (`id` ASC),
+  UNIQUE INDEX `catalogName_UNIQUE` (`catalogName` ASC),
+  UNIQUE INDEX `catalogNumber_UNIQUE` (`catalogNumber` ASC));
