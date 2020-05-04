@@ -1,0 +1,45 @@
+{% extends "layout.html" %}
+<link type=text/javascript href="{{ url_for('static', filename='js/get_selection.js') }}">
+{% block body %}
+{% if session.logged_in %}
+<h2>Edit Note</h2>
+<form action="{{ url_for('update_entry')}}" method=post class=update-entry>
+    <dl>
+        <dd><input type="hidden" size=30 value="{{ entry.id }}" name=id>
+        <dt>Note Title:
+        <dd><input type=text size=30 value="{{ entry.title }}" name=title>
+        <dt>Note Text:
+        <dd><textarea name=text rows=15 cols=100 id="edit_text"></textarea>
+        <script>
+            document.getElementById("edit_text").value="{{ entry.text }}"
+        </script>
+        <dt>Catalog Selection:
+        <dd><select id="edit_catalog" name=catalog>chengdu
+            <option value=0>test</option>
+            <option value=1>mysql</option>
+            <option value=2>python</option>
+            <option value=3>performance</option>
+            <option value=4>security</option>
+        </select>
+        <script>
+            function get_default_selection(id){
+                m=$("edit_catalog");
+                for(i=0;i<=m.options.length;i++)
+                {
+                    if(parseInt(m.options[i].value)==parseInt(id))
+                    {
+                        m.options[i].selected=true;
+                        break;
+                    }
+                }
+            }
+            function $(id){
+                return document.getElementById(id);
+            }
+            get_default_selection("{{ entry.catalogs }}")
+        </script>
+            <input type=submit value=Submit>
+    </dl>
+</form>
+{% endif %}
+{% endblock %}

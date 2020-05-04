@@ -9,6 +9,7 @@ from flaskr.paras_assert.parameters_assert import check_username_valid
 from flaskr.sql_content.sql_commond import SqlCom
 import datetime
 
+
 app = Flask(__name__)
 app.permanent_session_lifetime = datetime.timedelta(seconds=2*60*60)
 app.config.from_object(configration)
@@ -21,7 +22,7 @@ command = SqlCom(db)
 
 @app.route('/')
 def show_entries():
-    result = db.select_data("select title, text, id from entries order by id desc")
+    result = db.select_data("select title, text, id from entries order by title desc")
     entries = [dict(title=row[0], text=row[1], id=row[2]) for row in result]
     return render_template('show_entries.html', entries=entries)
 
@@ -35,14 +36,13 @@ def filter_by_catalog_id():
             print('catalog error')
             return redirect(url_for('show_entries'))
         else:
-            result = db.select_data("select title, text, id from entries where Catalogs = %d order by id desc"
+            result = db.select_data("select title, text, id from entries where Catalogs = %d order by title desc"
                                     % int(request.form['catalog']))
             entries = [dict(title=row[0], text=row[1], id=row[2]) for row in result]
             return render_template('show_entries.html', entries=entries)
     except Exception as error:
         print(error)
         return redirect(url_for('show_entries'))
-
 
 
 @app.route('/add', methods=['POST'])
@@ -78,11 +78,12 @@ def update_entry():
         flash('title or text cannot be empty')
         return redirect(url_for('show_entries'))
     username = session.get('username')
-    sql = "insert into entries (title, text, updateBy, createTime) values ('{title}', '{text}', '{user}', '{datetime}')"
+    sql = "update entries set title='{title}', text='{text}', updateBy='{user}', createTime='{datetime}' " \
+          "where id = {id}"
     sql1 = sql.format(title=request.form['title'], text=request.form['text'],
-                      user=username, datetime=datetime.datetime.now())
+                      user=username, datetime=datetime.datetime.now(), id=request.form['id'])
     db.connect_db(sql1)
-    flash('New entry was successfully posted')
+    flash('entry %s was successfully updated' % request.form['title'])
     return redirect(url_for('show_entries'))
 
 
@@ -110,6 +111,28 @@ def logout():
     session.pop('logged_in', None)
     session.pop('username', None)
     flash('You were logged out')
+    return redirect(url_for('show_entries'))
+
+
+@app.route('/edit_entry/<id>', methods=['GET'])
+def edit_entry(id):
+    try:
+        int_id = int(id)
+        select_by_id = "select title, text, id, Catalogs from entries where id = {id}".format(id=int_id)
+        result = db.select_data(select_by_id)
+        print(select_by_id)
+        entry = [dict(title=row[0], text=row[1], id=row[2], catalogs=row[3]) for row in result]
+        if not entry:
+            return redirect(url_for('show_entries'))
+        else:
+            return render_template('edit_entry.html', entry=entry[0])
+    except Exception as id_error:
+        print(id_error)
+        return redirect(url_for('show_entries'))
+
+
+@app.route('/delete_entry/<id>', methods=['GET'])
+def delete_entry(id):
     return redirect(url_for('show_entries'))
 
 
