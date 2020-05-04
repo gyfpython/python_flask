@@ -125,6 +125,7 @@ def edit_entry(id):
         if not entry:
             return redirect(url_for('show_entries'))
         else:
+            entry[0]['text'] = entry[0]['text'].replace('\r\n', '')
             return render_template('edit_entry.html', entry=entry[0])
     except Exception as id_error:
         print(id_error)
