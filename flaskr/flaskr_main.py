@@ -5,6 +5,7 @@ from sqlalchemy import create_engine
 
 from flaskr import configration
 from flaskr.mysql_operation.mysql_connection import MysqlConnection
+from flaskr.paras_assert.check_entry_exist import check_entry_id_exist
 from flaskr.paras_assert.parameters_assert import check_username_valid
 from flaskr.sql_content.sql_commond import SqlCom
 import datetime
@@ -117,15 +118,10 @@ def logout():
 @app.route('/edit_entry/<id>', methods=['GET'])
 def edit_entry(id):
     try:
-        int_id = int(id)
-        select_by_id = "select title, text, id, Catalogs from entries where id = {id}".format(id=int_id)
-        result = db.select_data(select_by_id)
-        print(select_by_id)
-        entry = [dict(title=row[0], text=row[1], id=row[2], catalogs=row[3]) for row in result]
-        if not entry:
+        check_exist, entry = check_entry_id_exist(db, id)
+        if not check_exist:
             return redirect(url_for('show_entries'))
         else:
-            entry[0]['text'] = entry[0]['text'].replace('\r\n', '')
             return render_template('edit_entry.html', entry=entry[0])
     except Exception as id_error:
         print(id_error)
@@ -134,6 +130,17 @@ def edit_entry(id):
 
 @app.route('/delete_entry/<id>', methods=['GET'])
 def delete_entry(id):
+    try:
+        check_exist, entry = check_entry_id_exist(db, id)
+        if check_exist:
+            delete_entry_sql = "delete from entries where id = {id}".format(id=int(id))
+            db.connect_db(delete_entry_sql)
+            flash('delete entry %s success' % entry[0]['title'])
+        else:
+            flash('entry %s not existed' % id)
+    except Exception as id_error:
+        print(id_error)
+        flash('Error! Delete entry failed')
     return redirect(url_for('show_entries'))
 
 

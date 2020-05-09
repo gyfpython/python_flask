@@ -1,5 +1,4 @@
 {% extends "layout.html" %}
-<script type="text/javascript" src="time_operation.js"></script>
 {% block body %}
 {% if session.logged_in %}
 <h2>Add Note</h2>
@@ -37,7 +36,7 @@
     {% for entry in entries %}
     <li><h3>{{ entry.title }}</h3>
         <button onclick='location.href=("/edit_entry/{{ entry.id }}")'>Edit</button>
-        <button onclick='location.href=("/delete_entry/{{ entry.id }}")' class=delete-entry>Delete</button>
+        <button onclick='delete_entry_confirm("{{ entry.id }}")' class=delete-entry>Delete</button>
         {{ entry.text|safe }}
         {% else %}
     <li><em>Unbelievable.  No entries here so far</em>
