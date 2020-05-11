@@ -37,8 +37,13 @@ def filter_by_catalog_id():
             print('catalog error')
             return redirect(url_for('show_entries'))
         else:
-            result = db.select_data("select title, text, id from entries where Catalogs = %d order by %s desc"
-                                    % (int(request.form['catalog']), request.form['sort']))
+            if not request.form['title']:
+                sql = "select title, text, id from entries where Catalogs = %d order by %s desc" % \
+                      (int(request.form['catalog']), request.form['sort'])
+            else:
+                sql = "select title, text, id from entries where Catalogs = %d and title like '%%%s%%' order by %s desc" % \
+                      (int(request.form['catalog']), request.form['title'], request.form['sort'])
+            result = db.select_data(sql)
             entries = [dict(title=row[0], text=row[1], id=row[2]) for row in result]
             return render_template('show_entries.html', entries=entries)
     except Exception as error:

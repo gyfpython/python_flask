@@ -20,3 +20,20 @@ button          { color: #30a819; }
     border: 1px solid #AACBE2; }
 .error          { background: #F0D6D6; padding: 0.5em; }
 .delete-entry   { color: crimson }
+.title_search_input { width: 100px; }
+
+.dropbtn {
+    font-size: 16px;
+    cursor: pointer;
+    width: 100px;
+    height: 25px;
+}
+
+.dropdown {
+    position: relative;
+    display: inline-block;
+}
+
+.dropdown:hover .dropdown-content {
+    display: block;
+}

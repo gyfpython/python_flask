@@ -23,6 +23,9 @@ CREATE TABLE users (
 create unique index uk_username
 	on users (username);
 
+create unique index uk_title
+	on entries (title);
+
 ALTER TABLE flask.entries ADD COLUMN `Catalogs` int(11) NOT NULL DEFAULT '0' COMMENT '0:test;1:mysql;2:python...' ;
 
 CREATE TABLE `flask`.`catalogs` (

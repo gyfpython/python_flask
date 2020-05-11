@@ -22,7 +22,8 @@
 <h2>Search Conditions</h2>
 <form action="{{ url_for('filter_by_catalog_id') }}" method=post class=filter-by-catalog-id>
     <dl>
-        <dd><select id="filter_catalog" name=catalog>
+        <dd><input placeholder="type title" class="title_search_input" autocomplete="off" name=title>
+            <select id="filter_catalog" name=catalog>
             <option value=0>test</option>
             <option value=1>mysql</option>
             <option value=2>python</option>
