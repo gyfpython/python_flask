@@ -26,7 +26,7 @@ delete a user
 show all notes
 add a note
 update a note
-TODO: delete a note
+delete a note
 ``` 
 ## Note catalog
 ```$xslt
