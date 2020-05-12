@@ -24,7 +24,7 @@ delete a user
 ## Note CRUD
 ```$xslt
 show all notes
-add a note
+add a note(update init users in cache)
 update a note
 delete a note
 ``` 
@@ -35,7 +35,7 @@ mysql
 python
 performance
 security
-TODO: add a new catalog type
+TODO: add a new catalog type(update init catalog in cache)
 ```
 ## Search Note
 ```$xslt
