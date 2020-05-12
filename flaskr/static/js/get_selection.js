@@ -3,13 +3,14 @@ function get_default_selection(element_id, option_id){
     let i;
     for(i=0;i<=m.options.length;i++)
         {
-        if(parseInt(m.options[i].value)==parseInt(option_id))
+        if(m.options[i].value==option_id)
             {
                m.options[i].selected=true;
                break;
             }
         }
 }
+
 function $(id){
      return document.getElementById(id);
 }
@@ -21,6 +22,10 @@ function delete_entry_confirm(entry_id) {
     else{
         location.href=("/delete_entry/" + entry_id)
     }
+}
+
+function type_input(element_id, value) {
+    document.getElementById(element_id).value=value;
 }
 
 function getCreatorList(){

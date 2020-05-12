@@ -23,7 +23,7 @@ button          { color: #30a819; }
 .title_search_input { width: 100px; }
 .loginForm { font-family: sans-serif, Arial; text-align: center; font-size: 30px; height: 250px; }
 .loginForm dt { margin-left: -75px; font-size: 20px}
-.login_input { width: 200px; font-size: 18px; height: 25px}
+.login_input { width: 200px; font-size: 18px; height: 25px; font-weight: 400}
 
 .dropbtn {
     font-size: 16px;

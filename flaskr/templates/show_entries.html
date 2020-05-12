@@ -20,7 +20,7 @@
 <h2>Search Conditions</h2>
 <form action="{{ url_for('filter_by_catalog_id') }}" method=post class=filter-by-catalog-id>
     <dl>
-        <dd><input placeholder="type title" class="title_search_input" autocomplete="off" name=title>
+        <dd><input id="title_search" placeholder="type title" class="title_search_input" autocomplete="off" name=title>
             <select id="filter_catalog" name=catalog>
                 {% for catalog in catalog_entities %}
                 <option value="{{ catalog.catalog_num }}">{{ catalog.catalog_name }}</option>
@@ -33,9 +33,17 @@
             </select>
             <select id="createBy" name=creator>
                 {% for creator in creators %}
-                <option>{{ creator }}</option>
+                <option value="{{ creator }}">{{ creator }}</option>
                 {% endfor %}
             </select>
+            {% if search_condition %}
+            <script>
+                get_default_selection('filter_catalog', "{{ search_condition.catalog }}")
+                get_default_selection('sorted_by', "{{ search_condition.sort }}")
+                get_default_selection('createBy', "{{ search_condition.create_by }}")
+                type_input('title_search', '{{ search_condition.title }}')
+            </script>
+            {% endif %}
         <input type=submit value=Submit>
     </dl>
 </form>

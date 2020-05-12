@@ -39,6 +39,8 @@ def filter_by_catalog_id():
     try:
         if not session.get('logged_in'):
             abort(401)
+        search_condition = dict(title=request.form['title'], sort=request.form['sort'],
+                                catalog=request.form['catalog'], create_by=request.form['creator'])
         if int(request.form['catalog']) not in catalog_code:
             print('catalog error')
             return redirect(url_for('show_entries'))
@@ -54,7 +56,8 @@ def filter_by_catalog_id():
             result = db.select_data(sql)
             entries = [dict(title=row[0], text=row[1], id=row[2]) for row in result]
             return render_template(
-                'show_entries.html', entries=entries, creators=creators, catalog_entities=catalog_entities)
+                'show_entries.html', entries=entries, creators=creators,
+                catalog_entities=catalog_entities, search_condition=search_condition)
     except Exception as error:
         print(error)
         return redirect(url_for('show_entries'))
@@ -68,7 +71,7 @@ def add_entry():
         if not request.form['title'] or not request.form['text']:
             flash('title or text cannot be empty')
             return redirect(url_for('show_entries'))
-        if int(request.form['catalog']) not in [0, 1, 2, 3, 4]:
+        if int(request.form['catalog']) not in catalog_code:
             flash('catalog error')
             return redirect(url_for('show_entries'))
         username = session.get('username')
