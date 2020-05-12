@@ -39,9 +39,9 @@ TODO: add a new catalog type
 ```
 ## Search Note
 ```$xslt
-TODO: search notes by title
+search notes by title
 search notes via catalog
 sorted by id/title/createtime
-TODO: search notes via createBy
+search notes via createBy
 TODO: Paging display search result of notes  
 ```

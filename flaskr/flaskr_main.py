@@ -19,13 +19,19 @@ app.config.from_object(configration)
 db = MysqlConnection(host=app.config['MYSQL_HOST'], username=app.config['MYSQL_USER'],
                      password=app.config['MYSQL_PASSWORD'], database=app.config['MYSQL_DB'])
 command = SqlCom(db)
+creators = command.get_all_entry_creator()
+catalog_entity, catalog_code = command.get_all_catalog_code()
+if catalog_entity:
+    catalog_entities = [dict(catalog_num=row[0], catalog_name=row[1]) for row in catalog_entity]
+else:
+    catalog_entities = {}
 
 
 @app.route('/')
 def show_entries():
     result = db.select_data("select title, text, id from entries order by title desc")
     entries = [dict(title=row[0], text=row[1], id=row[2]) for row in result]
-    return render_template('show_entries.html', entries=entries)
+    return render_template('show_entries.html', entries=entries, creators=creators, catalog_entities=catalog_entities)
 
 
 @app.route('/search', methods=['POST'])
@@ -33,19 +39,22 @@ def filter_by_catalog_id():
     try:
         if not session.get('logged_in'):
             abort(401)
-        if int(request.form['catalog']) not in [0, 1, 2, 3, 4]:
+        if int(request.form['catalog']) not in catalog_code:
             print('catalog error')
             return redirect(url_for('show_entries'))
         else:
             if not request.form['title']:
-                sql = "select title, text, id from entries where Catalogs = %d order by %s desc" % \
-                      (int(request.form['catalog']), request.form['sort'])
+                sql = "select title, text, id from entries where Catalogs = %d and updateBy = '%s' order by %s desc" % \
+                      (int(request.form['catalog']), request.form['creator'], request.form['sort'])
             else:
-                sql = "select title, text, id from entries where Catalogs = %d and title like '%%%s%%' order by %s desc" % \
-                      (int(request.form['catalog']), request.form['title'], request.form['sort'])
+                sql = "select title, text, id from entries where " \
+                      "Catalogs = %d and updateBy = '%s' and title like '%%%s%%' order by %s desc" % \
+                      (int(request.form['catalog']), request.form['creator'],
+                       request.form['title'], request.form['sort'])
             result = db.select_data(sql)
             entries = [dict(title=row[0], text=row[1], id=row[2]) for row in result]
-            return render_template('show_entries.html', entries=entries)
+            return render_template(
+                'show_entries.html', entries=entries, creators=creators, catalog_entities=catalog_entities)
     except Exception as error:
         print(error)
         return redirect(url_for('show_entries'))

@@ -9,12 +9,10 @@
         <dt>Note Text:
         <dd><textarea name=text rows=5 cols=40></textarea>
         <dt>Catalog Selection:
-        <dd><select id="catalog" name=catalog>chengdu
-            <option value=0>test</option>
-            <option value=1>mysql</option>
-            <option value=2>python</option>
-            <option value=3>performance</option>
-            <option value=4>security</option>
+        <dd><select id="catalog" name=catalog>
+            {% for catalog in catalog_entities %}
+            <option value="{{ catalog.catalog_num }}">{{ catalog.catalog_name }}</option>
+            {% endfor %}
         </select>
         <input type=submit value=Submit>
     </dl>
@@ -24,17 +22,20 @@
     <dl>
         <dd><input placeholder="type title" class="title_search_input" autocomplete="off" name=title>
             <select id="filter_catalog" name=catalog>
-            <option value=0>test</option>
-            <option value=1>mysql</option>
-            <option value=2>python</option>
-            <option value=3>performance</option>
-            <option value=4>security</option>
-        </select>
-        <select id="sorted_by" name=sort>
-        <option value=id>id</option>
-        <option value=title>title</option>
-        <option value=createTime>createTime</option>
-        </select>
+                {% for catalog in catalog_entities %}
+                <option value="{{ catalog.catalog_num }}">{{ catalog.catalog_name }}</option>
+                {% endfor %}
+            </select>
+            <select id="sorted_by" name=sort>
+                <option value=id>id</option>
+                <option value=title>title</option>
+                <option value=createTime>createTime</option>
+            </select>
+            <select id="createBy" name=creator>
+                {% for creator in creators %}
+                <option>{{ creator }}</option>
+                {% endfor %}
+            </select>
         <input type=submit value=Submit>
     </dl>
 </form>
