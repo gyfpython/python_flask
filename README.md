@@ -6,7 +6,7 @@
 # Variate 3p sw
 ```$xslt
 mysql 
-redis(TODO) 
+redis 
 elasticsearch(TODO)
 ```
 

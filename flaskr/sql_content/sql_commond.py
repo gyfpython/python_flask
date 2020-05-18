@@ -28,6 +28,27 @@ class SqlCom(object):
             return [result[0] for result in results]
         return None
 
+    def get_all_entry(self):
+        get_entry = "select title, text, id from entries order by title desc"
+        results = self.database.select_data(get_entry)
+        if results:
+            return results
+        return None
+
+    def get_filtered_entry(self, search_condition: dict):
+        if not search_condition['title']:
+            sql = "select title, text, id from entries where Catalogs = %d and updateBy = '%s' order by %s desc" % \
+                  (int(search_condition['catalog']), search_condition['create_by'], search_condition['sort'])
+        else:
+            sql = "select title, text, id from entries where " \
+                  "Catalogs = %d and updateBy = '%s' and title like '%%%s%%' order by %s desc" % \
+                  (int(search_condition['catalog']), search_condition['create_by'],
+                   search_condition['title'], search_condition['sort'])
+        result = self.database.select_data(sql)
+        if result:
+            return result
+        return None
+
     # table catalogs
     def get_all_catalog_code(self):
         get_creator = "select distinct catalogNumber, catalogName from catalogs;"

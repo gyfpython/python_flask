@@ -15,11 +15,9 @@
         </script>
         <dt>Catalog Selection:
         <dd><select id="edit_catalog" name=catalog>chengdu
-            <option value=0>test</option>
-            <option value=1>mysql</option>
-            <option value=2>python</option>
-            <option value=3>performance</option>
-            <option value=4>security</option>
+            {% for catalog in catalog_entities %}
+            <option value="{{ catalog.catalog_num }}">{{ catalog.catalog_name }}</option>
+            {% endfor %}
         </select>
         <script>
             get_default_selection('edit_catalog', "{{ entry.catalogs }}")

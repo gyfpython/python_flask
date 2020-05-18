@@ -50,7 +50,7 @@ function getCreatorList(){
         },
 
         error: function (data) {
-            alert("查询学校失败" + data);
+            alert("查询失败" + data);
         }
     })
 }

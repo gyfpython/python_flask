@@ -1,12 +1,15 @@
 import hashlib
 from flask import Flask, request, session, g, redirect, url_for, abort, \
     render_template, flash
+import redis
 from sqlalchemy import create_engine
 
 from flaskr import configration
 from flaskr.mysql_operation.mysql_connection import MysqlConnection
 from flaskr.paras_assert.check_entry_exist import check_entry_id_exist
 from flaskr.paras_assert.parameters_assert import check_username_valid
+from flaskr.redis_operation.redis_key import RedisKey
+from flaskr.redis_operation.redis_get_set import RedisOperation
 from flaskr.sql_content.sql_commond import SqlCom
 import datetime
 
@@ -26,12 +29,23 @@ if catalog_entity:
 else:
     catalog_entities = {}
 
+global redis_operate
+redis_pool = redis.ConnectionPool(
+    host=app.config['REDIS_HOST'], port=app.config['REDIS_PORT'],
+    password=app.config['REDIS_PWD'], decode_responses=True)
+redis_connection = redis.Redis(connection_pool=redis_pool)
+redis_operate = RedisOperation(redis_connection)
+redis_operate.set_key(RedisKey.creators, str(creators))
+redis_operate.set_key(RedisKey.catalog_entities, str(catalog_entities))
+
 
 @app.route('/')
 def show_entries():
-    result = db.select_data("select title, text, id from entries order by title desc")
+    result = command.get_all_entry()
     entries = [dict(title=row[0], text=row[1], id=row[2]) for row in result]
-    return render_template('show_entries.html', entries=entries, creators=creators, catalog_entities=catalog_entities)
+    catalogs = redis_operate.get_json_value(RedisKey.catalog_entities)
+    cache_creators = redis_operate.get_json_value(RedisKey.creators)
+    return render_template('show_entries.html', entries=entries, creators=cache_creators, catalog_entities=catalogs)
 
 
 @app.route('/search', methods=['POST'])
@@ -45,15 +59,7 @@ def filter_by_catalog_id():
             print('catalog error')
             return redirect(url_for('show_entries'))
         else:
-            if not request.form['title']:
-                sql = "select title, text, id from entries where Catalogs = %d and updateBy = '%s' order by %s desc" % \
-                      (int(request.form['catalog']), request.form['creator'], request.form['sort'])
-            else:
-                sql = "select title, text, id from entries where " \
-                      "Catalogs = %d and updateBy = '%s' and title like '%%%s%%' order by %s desc" % \
-                      (int(request.form['catalog']), request.form['creator'],
-                       request.form['title'], request.form['sort'])
-            result = db.select_data(sql)
+            result = command.get_filtered_entry(search_condition)
             entries = [dict(title=row[0], text=row[1], id=row[2]) for row in result]
             return render_template(
                 'show_entries.html', entries=entries, creators=creators,
@@ -139,7 +145,7 @@ def edit_entry(id):
         if not check_exist:
             return redirect(url_for('show_entries'))
         else:
-            return render_template('edit_entry.html', entry=entry[0])
+            return render_template('edit_entry.html', entry=entry[0], catalog_entities=catalog_entities)
     except Exception as id_error:
         print(id_error)
         return redirect(url_for('show_entries'))
