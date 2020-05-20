@@ -54,7 +54,7 @@
         <button onclick='delete_entry_confirm("{{ entry.id }}")' class=delete-entry>Delete</button>
         {{ entry.text|safe }}
         {% else %}
-    <li><em>Unbelievable.  No entries here so far</em>
+    <li><em>No entries here match the search condition so far</em>
         {% endfor %}
 </ul>
 {% else %}

@@ -43,6 +43,3 @@ class MysqlConnection(object):
     def delete_raw(self):
         pass
 
-
-# test1 = MysqlConnection(host='127.0.0.1', username='root', password='root')
-# print(test1.select_data("SELECT * FROM test_table", 'flask'))
