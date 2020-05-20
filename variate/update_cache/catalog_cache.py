@@ -1,7 +1,7 @@
-from flaskr.redis_operation.redis_get_set import RedisOperation
-from flaskr.redis_operation.redis_key import RedisKey
-from flaskr.sql_content.sql_commond import SqlCom
-from flaskr.update_cache import BasicUpdateCache
+from variate.redis_operation.redis_get_set import RedisOperation
+from variate.redis_operation.redis_key import RedisKey
+from variate.sql_content.sql_commond import SqlCom
+from variate.update_cache import BasicUpdateCache
 
 
 class UpdateCatalogCache(BasicUpdateCache):

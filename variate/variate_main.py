@@ -5,14 +5,14 @@ import redis
 from flask import Flask, request, session, redirect, url_for, abort, \
     render_template, flash
 
-from flaskr import configration
-from flaskr.mysql_operation.mysql_connection import MysqlConnection
-from flaskr.paras_assert.parameters_assert import check_username_valid
-from flaskr.redis_operation.redis_get_set import RedisOperation
-from flaskr.redis_operation.redis_key import RedisKey
-from flaskr.sql_content.sql_commond import SqlCom
-from flaskr.update_cache.catalog_cache import UpdateCatalogCache
-from flaskr.update_cache.entry_cache import UpdateEntryCache
+from variate import configration
+from variate.mysql_operation.mysql_connection import MysqlConnection
+from variate.paras_assert.parameters_assert import check_username_valid
+from variate.redis_operation.redis_get_set import RedisOperation
+from variate.redis_operation.redis_key import RedisKey
+from variate.sql_content.sql_commond import SqlCom
+from variate.update_cache.catalog_cache import UpdateCatalogCache
+from variate.update_cache.entry_cache import UpdateEntryCache
 
 app = Flask(__name__)
 app.permanent_session_lifetime = datetime.timedelta(seconds=2*60*60)

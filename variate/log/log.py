@@ -1,7 +1,7 @@
 import logging
 from logging.handlers import RotatingFileHandler
 from flask import Flask
-from flaskr.config import config
+from variate.config import config
 
 
 def setup_log(config_name):

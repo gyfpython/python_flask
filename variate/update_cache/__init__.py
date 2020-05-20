@@ -1,5 +1,5 @@
-from flaskr.redis_operation.redis_get_set import RedisOperation
-from flaskr.sql_content.sql_commond import SqlCom
+from variate.redis_operation.redis_get_set import RedisOperation
+from variate.sql_content.sql_commond import SqlCom
 
 
 class BasicUpdateCache(object):

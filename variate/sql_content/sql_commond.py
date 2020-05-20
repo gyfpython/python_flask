@@ -1,6 +1,6 @@
 import datetime
 
-from flaskr.mysql_operation.mysql_connection import MysqlConnection
+from variate.mysql_operation.mysql_connection import MysqlConnection
 
 
 class SqlCom(object):
