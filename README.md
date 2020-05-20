@@ -26,7 +26,7 @@ delete a user
 show all notes
 add a note(update init users in cache)
 update a note
-delete a note
+delete a note(update init users in cache)
 ``` 
 ## Note catalog
 ```$xslt
