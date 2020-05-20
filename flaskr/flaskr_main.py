@@ -11,6 +11,8 @@ from flaskr.paras_assert.parameters_assert import check_username_valid
 from flaskr.redis_operation.redis_get_set import RedisOperation
 from flaskr.redis_operation.redis_key import RedisKey
 from flaskr.sql_content.sql_commond import SqlCom
+from flaskr.update_cache.catalog_cache import UpdateCatalogCache
+from flaskr.update_cache.entry_cache import UpdateEntryCache
 
 app = Flask(__name__)
 app.permanent_session_lifetime = datetime.timedelta(seconds=2*60*60)
@@ -19,29 +21,27 @@ app.config.from_object(configration)
 db = MysqlConnection(host=app.config['MYSQL_HOST'], username=app.config['MYSQL_USER'],
                      password=app.config['MYSQL_PASSWORD'], database=app.config['MYSQL_DB'])
 command = SqlCom(db)
-creators = command.get_all_entry_creator()
-catalog_entity, catalog_code = command.get_all_catalog_code()
-if catalog_entity:
-    catalog_entities = [dict(catalog_num=row[0], catalog_name=row[1]) for row in catalog_entity]
-else:
-    catalog_entities = {}
 
-redis_pool = redis.ConnectionPool(
-    host=app.config['REDIS_HOST'], port=app.config['REDIS_PORT'],
-    password=app.config['REDIS_PWD'], decode_responses=True)
+redis_pool = redis.ConnectionPool(host=app.config['REDIS_HOST'], port=app.config['REDIS_PORT'],
+                                  password=app.config['REDIS_PWD'], decode_responses=True)
 redis_connection = redis.Redis(connection_pool=redis_pool)
 redis_operate = RedisOperation(redis_connection)
-redis_operate.set_key(RedisKey.creators, str(creators))
-redis_operate.set_key(RedisKey.catalog_entities, str(catalog_entities))
+
+update_catalog_caches = UpdateCatalogCache(command, redis_operate)
+update_entry_caches = UpdateEntryCache(command, redis_operate)
+if not redis_operate.check_key_exist_or_empty(RedisKey.catalog_entities):
+    update_catalog_caches.update_catalog_entity()
+if not redis_operate.check_key_exist_or_empty(RedisKey.creators):
+    update_entry_caches.update_all_entry_creator()
 
 
 @app.route('/')
 def show_entries():
     result = command.get_all_entry()
     entries = [dict(title=row[0], text=row[1], id=row[2]) for row in result]
-    catalogs = redis_operate.get_json_value(RedisKey.catalog_entities)
-    cache_creators = redis_operate.get_json_value(RedisKey.creators)
-    return render_template('show_entries.html', entries=entries, creators=cache_creators, catalog_entities=catalogs)
+    catalog_entities = redis_operate.get_json_value(RedisKey.catalog_entities)
+    creators = redis_operate.get_json_value(RedisKey.creators)
+    return render_template('show_entries.html', entries=entries, creators=creators, catalog_entities=catalog_entities)
 
 
 @app.route('/search', methods=['POST'])
@@ -49,6 +49,9 @@ def filter_by_catalog_id():
     try:
         if not session.get('logged_in'):
             abort(401)
+        catalog_entities = redis_operate.get_json_value(RedisKey.catalog_entities)
+        catalog_code = [catalog['catalog_num'] for catalog in catalog_entities]
+        creators = redis_operate.get_json_value(RedisKey.creators)
         search_condition = dict(title=request.form['title'], sort=request.form['sort'],
                                 catalog=request.form['catalog'], create_by=request.form['creator'])
         if int(request.form['catalog']) not in catalog_code:
@@ -70,6 +73,8 @@ def add_entry():
     try:
         if not session.get('logged_in'):
             abort(401)
+        catalog_entities = redis_operate.get_json_value(RedisKey.catalog_entities)
+        catalog_code = [catalog['catalog_num'] for catalog in catalog_entities]
         if not request.form['title'] or not request.form['text']:
             flash('title or text cannot be empty')
             return redirect(url_for('show_entries'))
@@ -79,6 +84,7 @@ def add_entry():
         username = session.get('username')
         command.add_new_entry(title=request.form['title'], text=request.form['text'],
                               updateBy=username, Catalogs=int(request.form['catalog']))
+        update_entry_caches.update_all_entry_creator()
         flash('New entry was successfully posted')
         return redirect(url_for('show_entries'))
     except Exception as error:
@@ -91,6 +97,8 @@ def add_entry():
 def update_entry():
     if not session.get('logged_in'):
         abort(401)
+    catalog_entities = redis_operate.get_json_value(RedisKey.catalog_entities)
+    catalog_code = [catalog['catalog_num'] for catalog in catalog_entities]
     if int(request.form['catalog']) not in catalog_code:
         flash('catalog error')
         return redirect(url_for('show_entries'))
@@ -134,6 +142,7 @@ def logout():
 @app.route('/edit_entry/<id>', methods=['GET'])
 def edit_entry(id):
     try:
+        catalog_entities = redis_operate.get_json_value(RedisKey.catalog_entities)
         check_exist, entry = command.check_entry_id_exist(int(id))
         if not check_exist:
             return redirect(url_for('show_entries'))
@@ -150,6 +159,7 @@ def delete_entry(id):
         check_exist, entry = command.check_entry_id_exist(int(id))
         if check_exist:
             command.delete_a_entry_by_id(int(id))
+            update_entry_caches.update_all_entry_creator()
             flash('delete entry %s success' % entry[0]['title'])
         else:
             flash('entry %s not existed' % id)

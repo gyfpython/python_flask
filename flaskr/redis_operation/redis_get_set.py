@@ -14,3 +14,11 @@ class RedisOperation(object):
 
     def get_str_value(self, name: str):
         return self.conn.get(name)
+
+    def check_key_exist_or_empty(self, key: str):
+        if not self.conn.exists(key):
+            return False
+        else:
+            if not self.conn.get(key):
+                return False
+        return True
