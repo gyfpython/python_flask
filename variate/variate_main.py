@@ -6,7 +6,7 @@ from flask import Flask, request, session, redirect, url_for, abort, \
     render_template, flash
 
 from variate import configration
-from variate.mysql_operation.mysql_connection import MysqlConnection
+from variate.sql_content.mysql_connection import MysqlConnection
 from variate.paras_assert.parameters_assert import check_username_valid
 from variate.redis_operation.redis_get_set import RedisOperation
 from variate.redis_operation.redis_key import RedisKey
@@ -17,6 +17,12 @@ from variate.update_cache.entry_cache import UpdateEntryCache
 app = Flask(__name__)
 app.permanent_session_lifetime = datetime.timedelta(seconds=2*60*60)
 app.config.from_object(configration)
+
+# engine = create_engine('mysql+mysqlconnector://%s:%s@%s:3306/%s' %
+#                        (app.config['MYSQL_USER'], app.config['MYSQL_PASSWORD'],
+#                         app.config['MYSQL_HOST'], app.config['MYSQL_DB']))
+# DBSession = sessionmaker(bind=engine)
+# mysql_session = DBSession()
 
 db = MysqlConnection(host=app.config['MYSQL_HOST'], username=app.config['MYSQL_USER'],
                      password=app.config['MYSQL_PASSWORD'], database=app.config['MYSQL_DB'])
@@ -129,6 +135,42 @@ def login():
             flash('You were logged in')
             return redirect(url_for('show_entries'))
     return render_template('login.html', error=error)
+
+
+@app.route('/add_user', methods=['GET', 'POST'])
+def add_user():
+    try:
+        if request.method == 'GET':
+            return render_template('add_user.html')
+        else:
+            if session.get('username') != 'admin':
+                abort(403)
+            if not request.form['username']:
+                flash('username cannot be empty')
+                return render_template('add_user.html')
+            if not request.form['account']:
+                flash('account cannot be empty')
+                return render_template('add_user.html')
+            if not request.form['email']:
+                flash('email cannot be empty')
+                return render_template('add_user.html')
+            if not request.form['password']:
+                flash('password cannot be empty')
+                return render_template('add_user.html')
+            if len(request.form['password']) < 8:
+                flash('password length must great than 8')
+                return render_template('add_user.html')
+            if command.check_username(request.form['username']):
+                flash('user name already existed')
+                return render_template('add_user.html')
+            md5pwd = hashlib.md5(request.form['password'].encode()).hexdigest()
+            command.add_user(username=request.form['username'],
+                             account=request.form['account'], pwd=md5pwd, email=request.form['email'])
+            flash('add user %s success' % request.form['username'])
+            return render_template('add_user.html')
+    except Exception as user_error:
+        print(user_error)
+        return render_template('add_user.html')
 
 
 @app.route('/logout')

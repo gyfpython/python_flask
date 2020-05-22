@@ -1,6 +1,6 @@
 import datetime
 
-from variate.mysql_operation.mysql_connection import MysqlConnection
+from variate.sql_content.mysql_connection import MysqlConnection
 
 
 class SqlCom(object):
@@ -8,6 +8,14 @@ class SqlCom(object):
         self.database = database
 
     # table users
+    def add_user(self, username: str, account: str, pwd: str, email: str):
+        add_user_sql = "insert into users (username, account, password, email, createTime, updateBy, createBy) " \
+                       "values ('{username}', '{account}', '{password}', '{email}', '{createTime}', " \
+                       "'{updateBy}', '{createBy}')"\
+            .format(username=username, account=account, password=pwd,
+                    email=email, createTime=datetime.datetime.now(), updateBy='admin', createBy='admin')
+        self.database.connect_db(add_user_sql)
+
     def check_username(self, username: str):
         get_username_sql = "select username from users where username = '{username}'".format(username=username)
         result = self.database.select_data(get_username_sql)
