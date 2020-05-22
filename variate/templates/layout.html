@@ -9,6 +9,10 @@
         <a href="{{ url_for('login') }}">log in</a>
         {% else %}
         <a href="{{ url_for('logout') }}">log out</a>
+        <div  class=addnote>
+            <a href="{{ url_for('add_new_entry') }}">Create Note</a>
+            <a href="{{ url_for('add_new_catalog_page') }}">Create catalog</a>
+        </div>
         {% endif %}
     </div>
     {% for message in get_flashed_messages() %}

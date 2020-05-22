@@ -1,40 +1,24 @@
 {% extends "layout.html" %}
 {% block body %}
 {% if session.logged_in %}
-<h2>Add Note</h2>
-<form action="{{ url_for('add_entry') }}" method=post class=add-entry>
-    <dl>
-        <dt>Note Title:
-        <dd><input type=text size=30 name=title>
-        <dt>Note Text:
-        <dd><textarea name=text rows=5 cols=40></textarea>
-        <dt>Catalog Selection:
-        <dd><select id="catalog" name=catalog>
-            {% for catalog in catalog_entities %}
-            <option value="{{ catalog.catalog_num }}">{{ catalog.catalog_name }}</option>
-            {% endfor %}
-        </select>
-        <input type=submit value=Submit>
-    </dl>
-</form>
 <h2>Search Conditions</h2>
 <form action="{{ url_for('filter_by_catalog_id') }}" method=post class=filter-by-catalog-id>
     <dl>
         <dd><input id="title_search" placeholder="type title" class="title_search_input" autocomplete="off" name=title>
-            <select id="filter_catalog" name=catalog>
+            <select id="filter_catalog" name=catalog title="catalog filter">
                 {% for catalog in catalog_entities %}
                 <option value="{{ catalog.catalog_num }}">{{ catalog.catalog_name }}</option>
                 {% endfor %}
             </select>
-            <select id="sorted_by" name=sort>
-                <option value=id>id</option>
-                <option value=title>title</option>
-                <option value=createTime>createTime</option>
-            </select>
-            <select id="createBy" name=creator>
+            <select id="createBy" name=creator title="creator filter">
                 {% for creator in creators %}
                 <option value="{{ creator }}">{{ creator }}</option>
                 {% endfor %}
+            </select>
+            <select id="sorted_by" name=sort title="Sorted By">
+                <option value=id>id</option>
+                <option value=title>title</option>
+                <option value=createTime>createTime</option>
             </select>
             {% if search_condition %}
             <script>

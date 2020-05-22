@@ -1,0 +1,22 @@
+{% extends "layout.html" %}
+<script src="{{ url_for('static', filename='js/get_selection.js') }}"></script>
+{% block body %}
+{% if session.logged_in %}
+<h2>Create Note</h2>
+<form action="{{ url_for('add_entry')}}" method=post class=update-entry>
+    <dl>
+        <dt>Note Title:
+        <dd><input type=text size=30 name=title>
+        <dt>Note Text:
+        <dd><textarea name=text rows=15 cols=100 id="edit_text"></textarea>
+        <dt>Catalog Selection:
+        <dd><select id="edit_catalog" name=catalog>chengdu
+            {% for catalog in catalog_entities %}
+            <option value="{{ catalog.catalog_num }}">{{ catalog.catalog_name }}</option>
+            {% endfor %}
+        </select>
+            <input type=submit value=Submit>
+    </dl>
+</form>
+{% endif %}
+{% endblock %}

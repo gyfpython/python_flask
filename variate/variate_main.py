@@ -77,20 +77,20 @@ def add_entry():
         catalog_code = [catalog['catalog_num'] for catalog in catalog_entities]
         if not request.form['title'] or not request.form['text']:
             flash('title or text cannot be empty')
-            return redirect(url_for('show_entries'))
+            return redirect(url_for('add_new_entry'))
         if int(request.form['catalog']) not in catalog_code:
             flash('catalog error')
-            return redirect(url_for('show_entries'))
+            return redirect(url_for('add_new_entry'))
         username = session.get('username')
         command.add_new_entry(title=request.form['title'], text=request.form['text'],
                               updateBy=username, Catalogs=int(request.form['catalog']))
         update_entry_caches.update_all_entry_creator()
         flash('New entry was successfully posted')
-        return redirect(url_for('show_entries'))
+        return redirect(url_for('add_new_entry'))
     except Exception as error:
         print(error)
         flash('error')
-        return redirect(url_for('show_entries'))
+        return redirect(url_for('add_new_entry'))
 
 
 @app.route('/update', methods=['POST'])
@@ -151,6 +151,42 @@ def edit_entry(id):
     except Exception as id_error:
         print(id_error)
         return redirect(url_for('show_entries'))
+
+
+@app.route('/add_entry', methods=['GET'])
+def add_new_entry():
+    try:
+        catalog_entities = redis_operate.get_json_value(RedisKey.catalog_entities)
+        return render_template('add_entry.html', catalog_entities=catalog_entities)
+    except Exception as some_error:
+        print(some_error)
+        return redirect(url_for('show_entries'))
+
+
+@app.route('/add_catalog_page', methods=['GET'])
+def add_new_catalog_page():
+    try:
+        return render_template('add_catalog.html')
+    except Exception as some_error:
+        print(some_error)
+        return redirect(url_for('add_new_catalog_page'))
+
+
+@app.route('/add_catalog', methods=['POST'])
+def add_catalog():
+    try:
+        if not request.form['catalogName']:
+            flash('catalog name cannot be empty')
+            return redirect(url_for('add_new_catalog_page'))
+        max_catalog_namber = command.get_max_catalog_number()
+        command.add_new_catalog(catalog_name=request.form['catalogName'],
+                                catalog_number=max_catalog_namber+1, username=session.get('username'))
+        update_catalog_caches.update_catalog_entity()
+        flash('add catalog %s success' % request.form['catalogName'])
+        return redirect(url_for('add_new_catalog_page'))
+    except Exception as some_error:
+        print(some_error)
+        return redirect(url_for('add_new_catalog_page'))
 
 
 @app.route('/delete_entry/<id>', methods=['GET'])

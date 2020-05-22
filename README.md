@@ -1,7 +1,6 @@
 # Variate Introduction
 ```
    Notes storage system(flask web framework)
-   User login/CRUD notes/create user
 ```
 # Variate 3p sw
 ```$xslt
@@ -13,35 +12,45 @@ elasticsearch(TODO)
 # Variate Features
 ## Variate Login
 ```$xslt
-User Login
+User Login/Logout
 ``` 
-## TODO user CRUD
+## User Management
 ```$xslt
 add a new user
-update a user
-delete a user
+TODO: update a user
+TODO: delete a user
 ```
-## Note CRUD
+## Note Management
+### Note CRUD
 ```$xslt
 show all notes
 add a note(update init users in cache)
 update a note
 delete a note(update init users in cache)
 ``` 
-## Note catalog
-```$xslt
-test
-mysql
-python
-performance
-security
-TODO: add a new catalog type(update init catalog in cache)
-```
-## Search Note
+### Search Note
 ```$xslt
 search notes by title
 search notes via catalog
 sorted by id/title/createtime
 search notes via createBy
 TODO: Paging display search result of notes  
+```
+## Note Catalog
+### Catalog list
+```$xslt
+test
+mysql
+python
+performance
+security
+storage
+```
+### Catalog Management
+```
+add a new catalog type(update init catalog in cache)
+TODO: delete a catalog type(update init catalog in cache)
+TODO: update a catalog type(update init catalog in cache)
+TODO: show all catalog type
+
 ```

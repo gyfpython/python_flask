@@ -48,7 +48,7 @@ class SqlCom(object):
         return None
 
     def get_all_entry(self):
-        get_entry = "select title, text, id from entries order by title desc"
+        get_entry = "select title, text, id from entries order by title"
         results = self.database.select_data(get_entry)
         if results:
             return results
@@ -56,11 +56,11 @@ class SqlCom(object):
 
     def get_filtered_entry(self, search_condition: dict):
         if not search_condition['title']:
-            sql = "select title, text, id from entries where Catalogs = %d and updateBy = '%s' order by %s desc" % \
+            sql = "select title, text, id from entries where Catalogs = %d and updateBy = '%s' order by %s" % \
                   (int(search_condition['catalog']), search_condition['create_by'], search_condition['sort'])
         else:
             sql = "select title, text, id from entries where " \
-                  "Catalogs = %d and updateBy = '%s' and title like '%%%s%%' order by %s desc" % \
+                  "Catalogs = %d and updateBy = '%s' and title like '%%%s%%' order by %s" % \
                   (int(search_condition['catalog']), search_condition['create_by'],
                    search_condition['title'], search_condition['sort'])
         result = self.database.select_data(sql)
@@ -83,6 +83,20 @@ class SqlCom(object):
             return False, None
 
     # table catalogs
+    def get_max_catalog_number(self):
+        max_number_sql = "select max(catalogNumber) from catalogs"
+        result = self.database.select_data(max_number_sql)
+        if result:
+            return result[0][0]
+        return None
+
+    def add_new_catalog(self, catalog_name: str, catalog_number: int, username: str):
+        insert_catalog_sql = "insert into catalogs (catalogNumber, catalogName, createTime, createBy)" \
+                             " values ('{catalogNumber}', '{catalogName}', '{createTime}', '{createBy}')".\
+            format(catalogNumber=catalog_number, catalogName=catalog_name,
+                   createTime=datetime.datetime.now(), createBy=username)
+        self.database.connect_db(insert_catalog_sql)
+
     def get_all_catalog_code(self):
         get_creator = "select distinct catalogNumber, catalogName from catalogs;"
         results = self.database.select_data(get_creator)
