@@ -141,36 +141,38 @@ def login():
 def add_user():
     try:
         if request.method == 'GET':
-            return render_template('add_user.html')
+            return render_template('add_user.html', user_entity={})
         else:
+            user_entity = dict(username1=request.form['username'], fullname=request.form['account'],
+                               email=request.form['email'], password1=request.form['password'])
             if session.get('username') != 'admin':
                 abort(403)
             if not request.form['username']:
                 flash('username cannot be empty')
-                return render_template('add_user.html')
-            if not request.form['account']:
-                flash('account cannot be empty')
-                return render_template('add_user.html')
-            if not request.form['email']:
-                flash('email cannot be empty')
-                return render_template('add_user.html')
-            if not request.form['password']:
-                flash('password cannot be empty')
-                return render_template('add_user.html')
-            if len(request.form['password']) < 8:
-                flash('password length must great than 8')
-                return render_template('add_user.html')
+                return render_template('add_user.html', user_entity=user_entity)
             if command.check_username(request.form['username']):
                 flash('user name already existed')
-                return render_template('add_user.html')
+                return render_template('add_user.html', user_entity=user_entity)
+            if not request.form['account']:
+                flash('Full name cannot be empty')
+                return render_template('add_user.html', user_entity=user_entity)
+            if not request.form['email']:
+                flash('email cannot be empty')
+                return render_template('add_user.html', user_entity=user_entity)
+            if not request.form['password']:
+                flash('password cannot be empty')
+                return render_template('add_user.html', user_entity=user_entity)
+            if len(request.form['password']) < 8:
+                flash('password length must great than 8')
+                return render_template('add_user.html', user_entity=user_entity)
             md5pwd = hashlib.md5(request.form['password'].encode()).hexdigest()
             command.add_user(username=request.form['username'],
                              account=request.form['account'], pwd=md5pwd, email=request.form['email'])
             flash('add user %s success' % request.form['username'])
-            return render_template('add_user.html')
+            return render_template('add_user.html', user_entity={})
     except Exception as user_error:
         print(user_error)
-        return render_template('add_user.html')
+        return render_template('add_user.html', user_entity={})
 
 
 @app.route('/logout')

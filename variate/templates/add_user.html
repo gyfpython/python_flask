@@ -5,6 +5,7 @@
 <h2>Create User</h2>
 <form action="{{ url_for('add_user')}}" method=post class=update-entry>
     <dl>
+        {% if not user_entity %}
         <dt>Username:
         <dd><input type=text size=30 name=username>
         <dt>Full Name:
@@ -12,7 +13,17 @@
         <dt>Email:
         <dd><input type=text size=30 name=email>
         <dt>Password:
-        <dd><input type=text size=30 name=password>
+        <dd><input type=password size=30 name=password>
+        {% else %}
+        <dt>Username:
+        <dd><input type=text size=30 value="{{ user_entity.username1 }}" name=username>
+        <dt>Full Name:
+        <dd><input type=text size=30 value="{{ user_entity.fullname }}" name=account>
+        <dt>Email:
+        <dd><input type=text size=30 value="{{ user_entity.email }}" name=email>
+        <dt>Password:
+        <dd><input type=password size=30 value="{{ user_entity.password1 }}" name=password>
+        {% endif %}
             <input type=submit value=Submit>
     </dl>
 </form>
