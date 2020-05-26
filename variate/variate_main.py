@@ -64,16 +64,31 @@ def filter_by_catalog_id():
             search_condition = dict(title=request.form['title'], sort=request.form['sort'],
                                     catalog=request.form['catalog'], create_by=request.form['creator'])
             session['search_condition'] = search_condition
-            if int(request.form['catalog']) not in catalog_code:
+            if int(request.form['catalog']) not in catalog_code and int(request.form['catalog']) != -1:
                 print('catalog error')
                 return redirect(url_for('show_entries'))
         else:
             search_condition = session.get('search_condition')
-        filter_entry = Entry.query.filter(
-            Entry.Catalogs == int(search_condition['catalog']) and
-            Entry.updateBy == search_condition['create_by'] and
-            Entry.title.like('%'+search_condition['title']+'%')) \
-            .order_by(search_condition['sort']).paginate(page, 10, error_out=False)
+        if int(search_condition['catalog']) == -1 and search_condition['create_by'] == 'all':
+            filter_entry = Entry.query.filter(
+                Entry.title.like('%'+search_condition['title']+'%')) \
+                .order_by(search_condition['sort']).paginate(page, 10, error_out=False)
+        elif int(search_condition['catalog']) != -1 and search_condition['create_by'] == 'all':
+            filter_entry = Entry.query.filter(
+                Entry.Catalogs == int(search_condition['catalog']) and
+                Entry.title.like('%'+search_condition['title']+'%')) \
+                .order_by(search_condition['sort']).paginate(page, 10, error_out=False)
+        elif int(search_condition['catalog']) == -1 and search_condition['create_by'] != 'all':
+            filter_entry = Entry.query.filter(
+                Entry.updateBy == search_condition['create_by'] and
+                Entry.title.like('%'+search_condition['title']+'%')) \
+                .order_by(search_condition['sort']).paginate(page, 10, error_out=False)
+        else:
+            filter_entry = Entry.query.filter(
+                Entry.Catalogs == int(search_condition['catalog']) and
+                Entry.updateBy == search_condition['create_by'] and
+                Entry.title.like('%'+search_condition['title']+'%')) \
+                .order_by(search_condition['sort']).paginate(page, 10, error_out=False)
         return render_template(
             'show_entries.html', entries=filter_entry.items, creators=creators, pagination=filter_entry,
             catalog_entities=catalog_entities, search_condition=search_condition)

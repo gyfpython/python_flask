@@ -7,11 +7,13 @@
     <dl>
         <dd><input id="title_search" placeholder="type title" class="title_search_input" autocomplete="off" name=title>
             <select id="filter_catalog" name=catalog title="catalog filter">
+                <option value="-1">all catalogs</option>
                 {% for catalog in catalog_entities %}
                 <option value="{{ catalog.catalog_num }}">{{ catalog.catalog_name }}</option>
                 {% endfor %}
             </select>
             <select id="createBy" name=creator title="creator filter">
+                <option value="all">all creators</option>
                 {% for creator in creators %}
                 <option value="{{ creator }}">{{ creator }}</option>
                 {% endfor %}
