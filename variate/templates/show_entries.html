@@ -42,6 +42,7 @@
     <li><em>No entries here match the search condition so far</em>
         {% endfor %}
 </ul>
+{{pg.my_paginate(pagination,'filter_by_catalog_id')}}
 {% else %}
 {% if error %}<p class=error onClick="timedMsg()"><strong>Error:</strong> {{ error }}{% endif %}
 <div class="loginForm">

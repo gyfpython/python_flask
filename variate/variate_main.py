@@ -11,22 +11,22 @@ from variate.paras_assert.parameters_assert import check_username_valid
 from variate.redis_operation.redis_get_set import RedisOperation
 from variate.redis_operation.redis_key import RedisKey
 from variate.sql_content.sql_commond import SqlCom
+from variate.sql_content.tables.tables_define import Users, Entry
 from variate.update_cache.catalog_cache import UpdateCatalogCache
 from variate.update_cache.entry_cache import UpdateEntryCache
+from variate.sql_content.base_database import db
 
 app = Flask(__name__)
 app.permanent_session_lifetime = datetime.timedelta(seconds=2*60*60)
 app.config.from_object(configration)
 
-# engine = create_engine('mysql+mysqlconnector://%s:%s@%s:3306/%s' %
-#                        (app.config['MYSQL_USER'], app.config['MYSQL_PASSWORD'],
-#                         app.config['MYSQL_HOST'], app.config['MYSQL_DB']))
-# DBSession = sessionmaker(bind=engine)
-# mysql_session = DBSession()
+with app.app_context():
+    db.init_app(app)
+    # db.create_all()
 
-db = MysqlConnection(host=app.config['MYSQL_HOST'], username=app.config['MYSQL_USER'],
+self_db = MysqlConnection(host=app.config['MYSQL_HOST'], username=app.config['MYSQL_USER'],
                      password=app.config['MYSQL_PASSWORD'], database=app.config['MYSQL_DB'])
-command = SqlCom(db)
+command = SqlCom(self_db)
 
 redis_pool = redis.ConnectionPool(host=app.config['REDIS_HOST'], port=app.config['REDIS_PORT'],
                                   password=app.config['REDIS_PWD'], decode_responses=True)
@@ -43,32 +43,40 @@ if not redis_operate.check_key_exist_or_empty(RedisKey.creators):
 
 @app.route('/')
 def show_entries():
-    result = command.get_all_entry()
-    entries = [dict(title=row[0], text=row[1], id=row[2]) for row in result]
+    # result = command.get_all_entry()
+    # entries = [dict(title=row[0], text=row[1], id=row[2]) for row in result]
+    all_entry = Entry.query.order_by('title').paginate(1, 10, error_out=False)
     catalog_entities = redis_operate.get_json_value(RedisKey.catalog_entities)
     creators = redis_operate.get_json_value(RedisKey.creators)
-    return render_template('show_entries.html', entries=entries, creators=creators, catalog_entities=catalog_entities)
+    return render_template('show_entries.html', pagination=all_entry, entries=all_entry.items, creators=creators, catalog_entities=catalog_entities)
 
 
-@app.route('/search', methods=['POST'])
+@app.route('/search', methods=['GET', 'POST'])
 def filter_by_catalog_id():
     try:
         if not session.get('logged_in'):
             abort(401)
+        page = request.args.get('page', 1, type=int)
         catalog_entities = redis_operate.get_json_value(RedisKey.catalog_entities)
         catalog_code = [catalog['catalog_num'] for catalog in catalog_entities]
         creators = redis_operate.get_json_value(RedisKey.creators)
-        search_condition = dict(title=request.form['title'], sort=request.form['sort'],
-                                catalog=request.form['catalog'], create_by=request.form['creator'])
-        if int(request.form['catalog']) not in catalog_code:
-            print('catalog error')
-            return redirect(url_for('show_entries'))
+        if request.method == 'POST':
+            search_condition = dict(title=request.form['title'], sort=request.form['sort'],
+                                    catalog=request.form['catalog'], create_by=request.form['creator'])
+            session['search_condition'] = search_condition
+            if int(request.form['catalog']) not in catalog_code:
+                print('catalog error')
+                return redirect(url_for('show_entries'))
         else:
-            result = command.get_filtered_entry(search_condition)
-            entries = [dict(title=row[0], text=row[1], id=row[2]) for row in result] if result else []
-            return render_template(
-                'show_entries.html', entries=entries, creators=creators,
-                catalog_entities=catalog_entities, search_condition=search_condition)
+            search_condition = session.get('search_condition')
+        filter_entry = Entry.query.filter(
+            Entry.Catalogs == int(search_condition['catalog']) and
+            Entry.updateBy == search_condition['create_by'] and
+            Entry.title.like('%'+search_condition['title']+'%')) \
+            .order_by(search_condition['sort']).paginate(page, 10, error_out=False)
+        return render_template(
+            'show_entries.html', entries=filter_entry.items, creators=creators, pagination=filter_entry,
+            catalog_entities=catalog_entities, search_condition=search_condition)
     except Exception as error:
         print(error)
         return redirect(url_for('show_entries'))

@@ -1,57 +1,63 @@
-from sqlalchemy import Column, Integer, VARCHAR, DateTime
-from sqlalchemy.ext.declarative import declarative_base
-from sqlalchemy import create_engine
-from sqlalchemy.orm import sessionmaker
+import datetime
 
-Base = declarative_base()
+from variate.sql_content.base_database import db
 
 
-class Users(Base):
+class Users(db.Model):
+
+    # Columns
+
     __tablename__ = 'users'
 
-    id = Column(Integer, primary_key=True, autoincrement=True)
-    username = Column(VARCHAR(100))
-    updateBy = Column(VARCHAR(100), default='admin')
-    account = Column(VARCHAR(100))
-    email = Column(VARCHAR(100))
-    password = Column(VARCHAR(512))
-    createBy = Column(VARCHAR(100), default='admin')
-    createTime = Column(DateTime, default='1970-01-01 00:00:00')
+    id = db.Column(db.Integer, primary_key=True, autoincrement=True)
+    username = db.Column(db.VARCHAR(100))
+    updateBy = db.Column(db.VARCHAR(100), default='admin')
+    account = db.Column(db.VARCHAR(100))
+    email = db.Column(db.VARCHAR(100))
+    password = db.Column(db.VARCHAR(512))
+    createBy = db.Column(db.VARCHAR(100), default='admin')
+    createTime = db.Column(db.DateTime, default=datetime.datetime.now())
+
+    def __init__(self, username, account, email, password):
+        self.username = username
+        self.account = account
+        self.email = email
+        self.password = password
+
+    def __repr__(self):
+        return '<User %r>' % self.name
+
+    def __str__(self):
+        return '<User %s>' % self.name
 
 
-class Entry(Base):
-    __tablename__ = 'entry'
+class Entry(db.Model):
+    __tablename__ = 'entries'
 
-    id = Column(Integer, primary_key=True, autoincrement=True)
-    title = Column(VARCHAR(100))
-    text = Column(VARCHAR(512))
-    Catalogs = Column(Integer)
-    updateBy = Column(VARCHAR(100), default='admin')
-    createTime = Column(DateTime, default='1970-01-01 00:00:00')
+    id = db.Column(db.Integer, primary_key=True, autoincrement=True)
+    title = db.Column(db.VARCHAR(100))
+    text = db.Column(db.VARCHAR(512))
+    Catalogs = db.Column(db.Integer)
+    updateBy = db.Column(db.VARCHAR(100), default='admin')
+    createTime = db.Column(db.DateTime, default=datetime.datetime.now())
+
+    def __init__(self, title: str, text: str, catalogs: int, update_by: str = 'admin'):
+        self.title = title
+        self.text = text
+        self.Catalogs = catalogs
+        self.updateBy = update_by
 
 
-class Catalogs(Base):
+class Catalogs(db.Model):
     __tablename__ = 'catalogs'
 
-    id = Column(Integer, primary_key=True, autoincrement=True)
-    catalogName = Column(VARCHAR(45), unique=True)
-    catalogNumber = Column(Integer, unique=True)
-    createBy = Column(VARCHAR(45))
-    createTime = Column(DateTime, default='1970-01-01 00:00:00')
+    id = db.Column(db.Integer, primary_key=True, autoincrement=True)
+    catalogName = db.Column(db.VARCHAR(45), unique=True)
+    catalogNumber = db.Column(db.Integer, unique=True)
+    createBy = db.Column(db.VARCHAR(45))
+    createTime = db.Column(db.DateTime, default=datetime.datetime.now())
 
-
-# engine = create_engine('mysql+mysqlconnector://root:root@127.0.0.1:3306/flask')
-#
-#
-# DBSession = sessionmaker(bind=engine)
-# session = DBSession()
-# lalala = session.query(Users.username).filter_by(id=20).all()
-# session.commit()
-# print(lalala)
-
-# new_user = Users(username='test1', account="test1", email="test1@123.com",
-#                  password='123123123', createTime=datetime.datetime.now())
-# session.add(new_user)
-# session.commit()
-# 关闭 session:
-# session.close()
+    def __init__(self, catalog_name: str, catalog_number: int, create_by: str):
+        self.catalogName = catalog_name
+        self.catalogNumber = catalog_number
+        self.createBy = create_by

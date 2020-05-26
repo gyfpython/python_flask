@@ -9,3 +9,4 @@ MYSQL_DB='flask'
 REDIS_HOST='127.0.0.1'
 REDIS_PORT=6379
 REDIS_PWD='redis_pwd'
+SQLALCHEMY_DATABASE_URI = "mysql+mysqlconnector://root:root@127.0.0.1:3306/flask"
