@@ -34,7 +34,7 @@ search notes by title
 search notes via catalog
 sorted by id/title/createtime
 search notes via createBy
-TODO: Paging display search result of notes  
+Paging display search result of notes  
 ```
 ## Note Catalog
 ### Catalog list
