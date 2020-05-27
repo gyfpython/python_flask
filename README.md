@@ -8,17 +8,30 @@ mysql
 redis 
 elasticsearch(TODO)
 ```
-
 # Variate Features
 ## Variate Login
 ```$xslt
 User Login/Logout
 ``` 
-## User Management
+## User Management(RBAC TODO)
+[RBAC wiki](https://en.wikipedia.org/wiki/Role-based_access_control)
 ```$xslt
-add a new user
+add a new user(add role of a user: TODO)
 TODO: update a user
 TODO: delete a user
+```
+## (TODO)Role Management
+```$xslt
+roles CRUD
+```
+## (TODO)Permission Management
+```$xslt
+define all permissions
+```
+## (TODO)Resource Management(notes)
+```$xslt
+admin can CRUD all NOTES
+user can CRUD its own NOTES
 ```
 ## Note Management
 ### Note CRUD
