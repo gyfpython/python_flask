@@ -38,7 +38,9 @@
     {% for entry in entries %}
     <li class="entry_detail">
         <h3>{{ entry.title }}</h3>
+        {% if session.username == 'admin' %}
         <button onclick='delete_entry_confirm("{{ entry.id }}")' class=delete-entry>Delete</button>
+        {% endif %}
         <button onclick='location.href=("/edit_entry/{{ entry.id }}")'>Edit</button>
         <p>{{ entry.text|safe }}</p>
         {% else %}
