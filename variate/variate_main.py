@@ -48,7 +48,8 @@ def show_entries():
     all_entry = Entry.query.order_by('title').paginate(1, 10, error_out=False)
     catalog_entities = redis_operate.get_json_value(RedisKey.catalog_entities)
     creators = redis_operate.get_json_value(RedisKey.creators)
-    return render_template('show_entries.html', pagination=all_entry, entries=all_entry.items, creators=creators, catalog_entities=catalog_entities)
+    return render_template('show_entries.html', pagination=all_entry, entries=all_entry.items,
+                           creators=creators, catalog_entities=catalog_entities)
 
 
 @app.route('/search', methods=['GET', 'POST'])

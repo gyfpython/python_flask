@@ -35,6 +35,7 @@
     </dl>
 </form>
 <ul class=entries>
+    <p class="total_entry">Find Total {{ pagination.total }} entries.</p>
     {% for entry in entries %}
     <li class="entry_detail">
         <h3>{{ entry.title }}</h3>
@@ -42,7 +43,7 @@
         <button onclick='delete_entry_confirm("{{ entry.id }}")' class=delete-entry>Delete</button>
         {% endif %}
         <button onclick='location.href=("/edit_entry/{{ entry.id }}")'>Edit</button>
-        <p>{{ entry.text|safe }}</p>
+        <p class="entry_text">{{ entry.text|safe }}</p>
         {% else %}
     <li><em>No entries here match the search condition so far</em>
         {% endfor %}
