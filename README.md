@@ -16,7 +16,7 @@ User Login/Logout
 ## User Management(RBAC TODO)
 [RBAC wiki](https://en.wikipedia.org/wiki/Role-based_access_control)
 ```$xslt
-add a new user(add role of a user: TODO)
+add a new user(releated a role to a user: TODO)
 TODO: update a user
 TODO: delete a user
 ```
@@ -43,6 +43,7 @@ delete a note(update init users in cache)
 ``` 
 ### Search Note
 ```$xslt
+show filtered entries count
 search notes by title
 search notes via catalog
 sorted by id/title/createtime
