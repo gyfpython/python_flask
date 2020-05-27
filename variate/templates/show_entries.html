@@ -36,10 +36,11 @@
 </form>
 <ul class=entries>
     {% for entry in entries %}
-    <li><h3>{{ entry.title }}</h3>
-        <button onclick='location.href=("/edit_entry/{{ entry.id }}")'>Edit</button>
+    <li class="entry_detail">
+        <h3>{{ entry.title }}</h3>
         <button onclick='delete_entry_confirm("{{ entry.id }}")' class=delete-entry>Delete</button>
-        {{ entry.text|safe }}
+        <button onclick='location.href=("/edit_entry/{{ entry.id }}")'>Edit</button>
+        <p>{{ entry.text|safe }}</p>
         {% else %}
     <li><em>No entries here match the search condition so far</em>
         {% endfor %}

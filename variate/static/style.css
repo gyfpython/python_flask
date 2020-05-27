@@ -3,10 +3,12 @@ a, h1       { color: #377BA8; }
 h1, h2          { font-family: 'Georgia', serif; margin: 0; }
 h1              { border-bottom: 2px solid #eee; }
 h2              { font-size: 1.2em; color: #1525a8; }
+h3              { width: 80% }
 button          { color: #30a819; }
 select          { font-size: 1em; }
-ul { padding-inline-start: 5px; }
-li { display:inline; }
+ul { padding-inline-start: 20px; }
+
+#page_model ul li { display:inline; }
 
 .addnote        { text-align: left; }
 .addnote a      { font-size: 1.2em; color: #06a80f }
@@ -30,6 +32,8 @@ li { display:inline; }
 .loginForm { font-family: sans-serif, Arial; text-align: center; font-size: 30px; height: 250px; }
 .loginForm dt { margin-left: -75px; font-size: 20px}
 .login_input { width: 200px; font-size: 18px; height: 25px; font-weight: 400}
+.entry_detail h3 ,.entry_detail button { display: inline; }
+.entry_detail button { float: right; }
 
 .dropbtn {
     font-size: 16px;
