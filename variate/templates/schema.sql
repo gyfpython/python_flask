@@ -67,7 +67,7 @@ CREATE TABLE `permissions` (
 
 CREATE TABLE `role_permissions` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
-  `permission` varchar(45) NOT NULL COMMENT 'permission',
+  `permission` int(11) NOT NULL COMMENT 'permissionCode',
   `roleCode` int(11) NOT NULL,
   `createTime` datetime NOT NULL DEFAULT '1970-01-01 00:00:00',
   `createBy` varchar(45) NOT NULL,

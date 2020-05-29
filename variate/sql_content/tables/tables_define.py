@@ -101,7 +101,7 @@ class RolePermissions(db.Model):
     __tablename__ = 'role_permissions'
 
     id = db.Column(db.Integer, primary_key=True, autoincrement=True)
-    permission = db.Column(db.VARCHAR(45))
+    permission = db.Column(db.Integer)
     roleCode = db.Column(db.Integer)
     createBy = db.Column(db.VARCHAR(45))
     createTime = db.Column(db.DateTime, default=datetime.datetime.now())
