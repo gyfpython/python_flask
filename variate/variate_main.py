@@ -43,8 +43,6 @@ if not redis_operate.check_key_exist_or_empty(RedisKey.creators):
 
 @app.route('/')
 def show_entries():
-    # result = command.get_all_entry()
-    # entries = [dict(title=row[0], text=row[1], id=row[2]) for row in result]
     all_entry = Entry.query.order_by('title').paginate(1, 10, error_out=False)
     catalog_entities = redis_operate.get_json_value(RedisKey.catalog_entities)
     creators = redis_operate.get_json_value(RedisKey.creators)
@@ -112,10 +110,12 @@ def add_entry():
             flash('catalog error')
             return redirect(url_for('add_new_entry'))
         username = session.get('username')
-        command.add_new_entry(title=request.form['title'], text=request.form['text'],
-                              updateBy=username, Catalogs=int(request.form['catalog']))
+        new_entry = Entry(title=request.form['title'], text=request.form['text'],
+                          catalogs=int(request.form['catalog']), update_by=username)
+        db.session.add(new_entry)
+        db.session.commit()
         update_entry_caches.update_all_entry_creator()
-        flash('New entry was successfully posted')
+        flash('New entry %s was successfully posted' % request.form['title'])
         return redirect(url_for('add_new_entry'))
     except Exception as error:
         print(error)
@@ -136,8 +136,13 @@ def update_entry():
         flash('title or text cannot be empty')
         return redirect(url_for('show_entries'))
     username = session.get('username')
-    command.update_entry(title=request.form['title'], text=request.form['text'],
-                         updateBy=username, Catalogs=int(request.form['catalog']), id=int(request.form['id']))
+    update_a_entry = Entry.query.filter_by(id=int(request.form['id'])).first()
+    update_a_entry.title = request.form['title']
+    update_a_entry.Catalogs = int(request.form['catalog'])
+    update_a_entry.text = request.form['text']
+    update_a_entry.updateBy = username
+    update_a_entry.createTime = datetime.datetime.now()
+    db.session.commit()
     flash('entry %s was successfully updated' % request.form['title'])
     return redirect(url_for('show_entries'))
 
@@ -150,7 +155,7 @@ def login():
         user_pwd = hashlib.md5(request.form['password'].encode()).hexdigest()
         if not username or not check_username_valid(username):
             error = 'Invalid username'
-        elif user_pwd != command.get_pwd(username):
+        elif user_pwd != Users.query.filter_by(username=username).first().password:
             error = 'Invalid password'
         else:
             session.permanent = True
@@ -190,8 +195,10 @@ def add_user():
                 flash('password length must great than 8')
                 return render_template('add_user.html', user_entity=user_entity)
             md5pwd = hashlib.md5(request.form['password'].encode()).hexdigest()
-            command.add_user(username=request.form['username'],
-                             account=request.form['account'], pwd=md5pwd, email=request.form['email'])
+            new_user = Users(username=request.form['username'], password=md5pwd,
+                             account=request.form['account'], email=request.form['email'])
+            db.session.add(new_user)
+            db.session.commit()
             flash('add user %s success' % request.form['username'])
             return render_template('add_user.html', user_entity={})
     except Exception as user_error:
