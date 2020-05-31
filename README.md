@@ -24,7 +24,7 @@ TODO: delete a user
 ```$xslt
 roles CRUD
 ```
-## (TODO)Permission Management
+## Permission Management
 ```$xslt
 define all permissions
 ```
