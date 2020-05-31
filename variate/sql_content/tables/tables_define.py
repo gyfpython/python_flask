@@ -14,15 +14,17 @@ class Users(db.Model):
     updateBy = db.Column(db.VARCHAR(100), default='admin')
     account = db.Column(db.VARCHAR(100))
     email = db.Column(db.VARCHAR(100))
+    roleCode = db.Column(db.Integer)
     password = db.Column(db.VARCHAR(512))
     createBy = db.Column(db.VARCHAR(100), default='admin')
     createTime = db.Column(db.DateTime, default=datetime.datetime.now())
 
-    def __init__(self, username, account, email, password):
+    def __init__(self, username, account, email, password, role_code):
         self.username = username
         self.account = account
         self.email = email
         self.password = password
+        self.roleCode = role_code
 
     def __repr__(self):
         return '<User %r>' % self.name
@@ -86,15 +88,18 @@ class Permissions(db.Model):
     id = db.Column(db.Integer, primary_key=True, autoincrement=True)
     permissionName = db.Column(db.VARCHAR(45), unique=True)
     permissionCode = db.Column(db.Integer, unique=True)
+    parentPermissionCode = db.Column(db.Integer)
     description = db.Column(db.VARCHAR(45))
     createBy = db.Column(db.VARCHAR(45))
     createTime = db.Column(db.DateTime, default=datetime.datetime.now())
 
-    def __init__(self, permission_name: str, permission_code: int, create_by: str, description: str):
+    def __init__(self, permission_name: str, permission_code: int,
+                 parent_code: int, create_by: str, description: str):
         self.permissionName = permission_name
         self.permissionCode = permission_code
         self.createBy = create_by
         self.description = description
+        self.parentPermissionCode = parent_code
 
 
 class RolePermissions(db.Model):

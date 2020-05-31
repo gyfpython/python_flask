@@ -10,9 +10,13 @@
         {% else %}
         <a href="{{ url_for('logout') }}">log out</a>
         <div  class=addnote>
+            {% if 'add_entry' in all_permissions %}
             <a href="{{ url_for('add_new_entry') }}">Create Note</a>
-            {% if session.username == 'admin' %}
+            {% endif %}
+            {% if 'add_catalog' in all_permissions %}
             <a href="{{ url_for('add_new_catalog_page') }}">Create catalog</a>
+            {% endif %}
+            {% if 'add_user' in all_permissions %}
             <a href="{{ url_for('add_user') }}">Create user</a>
             {% endif %}
         </div>

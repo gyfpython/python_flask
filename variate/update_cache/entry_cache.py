@@ -7,7 +7,8 @@ from variate.update_cache import BasicUpdateCache
 class UpdateEntryCache(BasicUpdateCache):
 
     def __init__(self, database: SqlCom, redis_con: RedisOperation):
-        super().__int__(database, redis_con)
+        super().__int__(redis_con)
+        self.database = database
 
     def update_all_entry_creator(self):
         creators = self.database.get_all_entry_creator()

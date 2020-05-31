@@ -10,7 +10,7 @@
         <dt>Note Text:
         <dd><textarea name=text rows=15 cols=100 id="edit_text"></textarea>
         <dt>Catalog Selection:
-        <dd><select id="edit_catalog" name=catalog>chengdu
+        <dd><select id="edit_catalog" name=catalog>
             {% for catalog in catalog_entities %}
             <option value="{{ catalog.catalog_num }}">{{ catalog.catalog_name }}</option>
             {% endfor %}

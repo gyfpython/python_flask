@@ -1,6 +1,8 @@
 import datetime
 
 from variate.sql_content.mysql_connection import MysqlConnection
+from variate.sql_content.base_database import db
+from variate.sql_content.tables.tables_define import *
 
 
 class SqlCom(object):
@@ -28,6 +30,14 @@ class SqlCom(object):
         result = self.database.select_data(get_pwd_sql)
         if result:
             return result[0][0]
+        return None
+
+    def get_user_role(self, username: str):
+        get_user_role = "select b.roleName, a.roleCode from users a, roles b" \
+                        " where a.username = '{username}' and a.roleCode = b.roleCode;".format(username=username)
+        result = self.database.select_data(get_user_role)
+        if result:
+            return result
         return None
 
     # table entries
@@ -108,8 +118,34 @@ class SqlCom(object):
     def get_all_catalog_code(self):
         get_creator = "select distinct catalogNumber, catalogName from catalogs;"
         results = self.database.select_data(get_creator)
+        # results1 = Catalogs.query.all()
         if results:
             return results, [result[0] for result in results]
+        return None
+
+    # roles
+    def get_all_role(self):
+        get_roles = "select roleName, roleCode from roles;"
+        result = self.database.select_data(get_roles)
+        if result:
+            return result
+        return None
+
+    # permissions
+    def get_whole_permission_tree(self):
+        get_a_tree_sql = "select permissionName, permissionCode from permissions"
+        result = self.database.select_data(get_a_tree_sql)
+        if result:
+            return result
+        return None
+
+    # role_permissions
+    def get_rule_permission(self, role_code: int):
+        get_rule_permission = "select b.permissionName, a.permission from role_permissions a, permissions b " \
+                              "where a.roleCode = {rc} and a.permission = b.permissionCode;".format(rc=role_code)
+        result = self.database.select_data(get_rule_permission)
+        if result:
+            return result
         return None
 
 

@@ -82,3 +82,13 @@ CREATE TABLE `user_role` (
   `createBy` varchar(45) NOT NULL,
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB AUTO_INCREMENT=9 DEFAULT CHARSET=utf8;
+
+-- add role code column of table users
+alter table users add roleCode int(11) not null default 1;
+
+-- add default role admin/user
+INSERT INTO `flask`.`roles` (`roleName`, `roleCode`, `description`, `createTime`, `createBy`) VALUES ('admin', '1', 'superadmin', '2020-05-29 14:50:47', 'admin');
+INSERT INTO `flask`.`roles` (`roleName`, `roleCode`, `description`, `createTime`, `createBy`) VALUES ('user', '2', 'default_user', '2020-05-29 14:50:47', 'admin');
+
+-- add parent permission code of table permissions
+alter table permissions add parentPermissionCode int(11) not null default 0 after permissionCode;

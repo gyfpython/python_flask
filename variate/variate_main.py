@@ -15,6 +15,8 @@ from variate.sql_content.tables.tables_define import Users, Entry
 from variate.update_cache.catalog_cache import UpdateCatalogCache
 from variate.update_cache.entry_cache import UpdateEntryCache
 from variate.sql_content.base_database import db
+from variate.update_cache.permission_cache import UpdatePermissionCache
+from variate.update_cache.role_cache import UpdateRoleCache
 
 app = Flask(__name__)
 app.permanent_session_lifetime = datetime.timedelta(seconds=2*60*60)
@@ -35,19 +37,34 @@ redis_operate = RedisOperation(redis_connection)
 
 update_catalog_caches = UpdateCatalogCache(command, redis_operate)
 update_entry_caches = UpdateEntryCache(command, redis_operate)
-if not redis_operate.check_key_exist_or_empty(RedisKey.catalog_entities):
-    update_catalog_caches.update_catalog_entity()
-if not redis_operate.check_key_exist_or_empty(RedisKey.creators):
-    update_entry_caches.update_all_entry_creator()
+update_role_cache = UpdateRoleCache(command, redis_operate)
+update_permission_cache = UpdatePermissionCache(command, redis_operate)
+
+update_catalog_caches.update_catalog_entity()
+update_entry_caches.update_all_entry_creator()
+update_role_cache.update_role_cache()
+update_permission_cache.update_permission_cache()
+update_permission_cache.update_all_role_permission()
+
+
+def get_all_perm(username: str):
+    role_name = redis_operate.get_json_value(username + RedisKey.user_role_post)['role_name']
+    all_permissions = redis_operate.get_json_value(role_name + RedisKey.role_permission_post)
+    permission_names = [permission['permission_name'] for permission in all_permissions]
+    return permission_names
 
 
 @app.route('/')
 def show_entries():
     all_entry = Entry.query.order_by('title').paginate(1, 10, error_out=False)
     catalog_entities = redis_operate.get_json_value(RedisKey.catalog_entities)
+    if session.get('logged_in'):
+        all_permissions = get_all_perm(session.get('username'))
+    else:
+        all_permissions = []
     creators = redis_operate.get_json_value(RedisKey.creators)
     return render_template('show_entries.html', pagination=all_entry, entries=all_entry.items,
-                           creators=creators, catalog_entities=catalog_entities)
+                           creators=creators, catalog_entities=catalog_entities, all_permissions=all_permissions)
 
 
 @app.route('/search', methods=['GET', 'POST'])
@@ -90,7 +107,8 @@ def filter_by_catalog_id():
                 .order_by(search_condition['sort']).paginate(page, 10, error_out=False)
         return render_template(
             'show_entries.html', entries=filter_entry.items, creators=creators, pagination=filter_entry,
-            catalog_entities=catalog_entities, search_condition=search_condition)
+            catalog_entities=catalog_entities, search_condition=search_condition,
+            all_permissions=get_all_perm(session.get('username')))
     except Exception as error:
         print(error)
         return redirect(url_for('show_entries'))
@@ -161,6 +179,7 @@ def login():
             session.permanent = True
             session['logged_in'] = True
             session['username'] = username
+            update_role_cache.add_user_role_cache(username)
             flash('You were logged in')
             return redirect(url_for('show_entries'))
     return render_template('login.html', error=error)
@@ -169,8 +188,10 @@ def login():
 @app.route('/add_user', methods=['GET', 'POST'])
 def add_user():
     try:
+        role_entities = redis_operate.get_json_value(RedisKey.role_entity)
+        role_codes = [role['role_code'] for role in role_entities]
         if request.method == 'GET':
-            return render_template('add_user.html', user_entity={})
+            return render_template('add_user.html', user_entity={}, role_entities=role_entities)
         else:
             user_entity = dict(username1=request.form['username'], fullname=request.form['account'],
                                email=request.form['email'], password1=request.form['password'])
@@ -178,32 +199,36 @@ def add_user():
                 abort(403)
             if not request.form['username']:
                 flash('username cannot be empty')
-                return render_template('add_user.html', user_entity=user_entity)
+                return render_template('add_user.html', user_entity=user_entity, role_entities=role_entities)
             if command.check_username(request.form['username']):
                 flash('user name already existed')
-                return render_template('add_user.html', user_entity=user_entity)
+                return render_template('add_user.html', user_entity=user_entity, role_entities=role_entities)
             if not request.form['account']:
                 flash('Full name cannot be empty')
-                return render_template('add_user.html', user_entity=user_entity)
+                return render_template('add_user.html', user_entity=user_entity, role_entities=role_entities)
             if not request.form['email']:
                 flash('email cannot be empty')
-                return render_template('add_user.html', user_entity=user_entity)
+                return render_template('add_user.html', user_entity=user_entity, role_entities=role_entities)
             if not request.form['password']:
                 flash('password cannot be empty')
-                return render_template('add_user.html', user_entity=user_entity)
+                return render_template('add_user.html', user_entity=user_entity, role_entities=role_entities)
+            if not request.form['role'] or int(request.form['role']) not in role_codes:
+                flash('must select a role')
+                return render_template('add_user.html', user_entity=user_entity, role_entities=role_entities)
             if len(request.form['password']) < 8:
                 flash('password length must great than 8')
-                return render_template('add_user.html', user_entity=user_entity)
+                return render_template('add_user.html', user_entity=user_entity, role_entities=role_entities)
             md5pwd = hashlib.md5(request.form['password'].encode()).hexdigest()
             new_user = Users(username=request.form['username'], password=md5pwd,
-                             account=request.form['account'], email=request.form['email'])
+                             account=request.form['account'], email=request.form['email'],
+                             role_code=int(request.form['role']))
             db.session.add(new_user)
             db.session.commit()
             flash('add user %s success' % request.form['username'])
-            return render_template('add_user.html', user_entity={})
+            return render_template('add_user.html', user_entity={}, role_entities=role_entities)
     except Exception as user_error:
         print(user_error)
-        return render_template('add_user.html', user_entity={})
+        return render_template('add_user.html', user_entity={}, role_entities=role_entities)
 
 
 @app.route('/logout')

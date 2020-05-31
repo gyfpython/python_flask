@@ -14,6 +14,12 @@
         <dd><input type=text size=30 name=email>
         <dt>Password:
         <dd><input type=password size=30 name=password>
+        <dt>Role:
+        <dd><select name=role>
+                {% for role in role_entities %}
+                <option value="{{ role.role_code }}">{{ role.role_name }}</option>
+                {% endfor %}
+            </select>
         {% else %}
         <dt>Username:
         <dd><input type=text size=30 value="{{ user_entity.username1 }}" name=username>
@@ -23,6 +29,12 @@
         <dd><input type=text size=30 value="{{ user_entity.email }}" name=email>
         <dt>Password:
         <dd><input type=password size=30 value="{{ user_entity.password1 }}" name=password>
+        <dt>Role:
+        <dd><select name=role>
+            {% for role in role_entities %}
+            <option value="{{ role.role_code }}">{{ catalog.role_name }}</option>
+            {% endfor %}
+        </select>
         {% endif %}
             <input type=submit value=Submit>
     </dl>

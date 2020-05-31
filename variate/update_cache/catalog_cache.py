@@ -6,7 +6,8 @@ from variate.update_cache import BasicUpdateCache
 
 class UpdateCatalogCache(BasicUpdateCache):
     def __init__(self, database: SqlCom, redis_con: RedisOperation):
-        super().__int__(database, redis_con)
+        super().__int__(redis_con)
+        self.database = database
 
     def update_catalog_entity(self):
         catalog_entity, catalog_code = self.database.get_all_catalog_code()
