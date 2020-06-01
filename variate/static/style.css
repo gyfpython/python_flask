@@ -11,7 +11,8 @@ ul { padding-inline-start: 20px; }
 #page_model ul li { display:inline; }
 
 .addnote        { text-align: left; }
-.addnote a      { font-size: 1.2em; color: #06a80f }
+.addnote li a   { font-size: 1.2em; color: #06a80f }
+.addnote li     { display: inline }
 
 .page           { margin: 2em auto; width: 80em; border: 5px solid #ccc;
     padding: 0.8em; background: white; }
@@ -52,3 +53,4 @@ ul { padding-inline-start: 20px; }
 .dropdown:hover .dropdown-content {
     display: block;
 }
+

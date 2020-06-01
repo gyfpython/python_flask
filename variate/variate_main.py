@@ -187,11 +187,15 @@ def login():
 
 @app.route('/add_user', methods=['GET', 'POST'])
 def add_user():
+    if not session.get('logged_in'):
+        abort(401)
+    all_permission = get_all_perm(session.get('username'))
+    role_entities = redis_operate.get_json_value(RedisKey.role_entity)
     try:
-        role_entities = redis_operate.get_json_value(RedisKey.role_entity)
         role_codes = [role['role_code'] for role in role_entities]
         if request.method == 'GET':
-            return render_template('add_user.html', user_entity={}, role_entities=role_entities)
+            return render_template('add_user.html', user_entity={}, role_entities=role_entities,
+                                   all_permissions=all_permission)
         else:
             user_entity = dict(username1=request.form['username'], fullname=request.form['account'],
                                email=request.form['email'], password1=request.form['password'])
@@ -199,25 +203,32 @@ def add_user():
                 abort(403)
             if not request.form['username']:
                 flash('username cannot be empty')
-                return render_template('add_user.html', user_entity=user_entity, role_entities=role_entities)
+                return render_template('add_user.html', user_entity=user_entity,
+                                       role_entities=role_entities, all_permissions=all_permission)
             if command.check_username(request.form['username']):
                 flash('user name already existed')
-                return render_template('add_user.html', user_entity=user_entity, role_entities=role_entities)
+                return render_template('add_user.html', user_entity=user_entity,
+                                       role_entities=role_entities, all_permissions=all_permission)
             if not request.form['account']:
                 flash('Full name cannot be empty')
-                return render_template('add_user.html', user_entity=user_entity, role_entities=role_entities)
+                return render_template('add_user.html', user_entity=user_entity,
+                                       role_entities=role_entities, all_permissions=all_permission)
             if not request.form['email']:
                 flash('email cannot be empty')
-                return render_template('add_user.html', user_entity=user_entity, role_entities=role_entities)
+                return render_template('add_user.html', user_entity=user_entity,
+                                       role_entities=role_entities, all_permissions=all_permission)
             if not request.form['password']:
                 flash('password cannot be empty')
-                return render_template('add_user.html', user_entity=user_entity, role_entities=role_entities)
+                return render_template('add_user.html', user_entity=user_entity,
+                                       role_entities=role_entities, all_permissions=all_permission)
             if not request.form['role'] or int(request.form['role']) not in role_codes:
                 flash('must select a role')
-                return render_template('add_user.html', user_entity=user_entity, role_entities=role_entities)
+                return render_template('add_user.html', user_entity=user_entity,
+                                       role_entities=role_entities, all_permissions=all_permission)
             if len(request.form['password']) < 8:
                 flash('password length must great than 8')
-                return render_template('add_user.html', user_entity=user_entity, role_entities=role_entities)
+                return render_template('add_user.html', user_entity=user_entity,
+                                       role_entities=role_entities, all_permissions=all_permission)
             md5pwd = hashlib.md5(request.form['password'].encode()).hexdigest()
             new_user = Users(username=request.form['username'], password=md5pwd,
                              account=request.form['account'], email=request.form['email'],
@@ -225,10 +236,27 @@ def add_user():
             db.session.add(new_user)
             db.session.commit()
             flash('add user %s success' % request.form['username'])
-            return render_template('add_user.html', user_entity={}, role_entities=role_entities)
+            return render_template('add_user.html', user_entity={},
+                                   role_entities=role_entities, all_permissions=all_permission)
     except Exception as user_error:
         print(user_error)
-        return render_template('add_user.html', user_entity={}, role_entities=role_entities)
+        return render_template('add_user.html', user_entity={},
+                               role_entities=role_entities, all_permissions=all_permission)
+
+
+@app.route('/add_role', methods=['GET', 'POST'])
+def add_role():
+    if not session.get('logged_in'):
+        abort(401)
+        return redirect(url_for('show_entries'))
+    whole_permissions = redis_operate.get_json_value(RedisKey.whole_permission)
+    if request.method == 'GET':
+        return render_template('add_role.html', whole_permissions=whole_permissions)
+    elif request.method == 'POST':
+        # TODO
+        return redirect(url_for('show_entries'))
+    else:
+        return redirect(url_for('show_entries'))
 
 
 @app.route('/logout')

@@ -11,13 +11,24 @@
         <a href="{{ url_for('logout') }}">log out</a>
         <div  class=addnote>
             {% if 'add_entry' in all_permissions %}
+            <li>
             <a href="{{ url_for('add_new_entry') }}">Create Note</a>
+            </li>
             {% endif %}
             {% if 'add_catalog' in all_permissions %}
+            <li>
             <a href="{{ url_for('add_new_catalog_page') }}">Create catalog</a>
+            </li>
             {% endif %}
             {% if 'add_user' in all_permissions %}
+            <li>
             <a href="{{ url_for('add_user') }}">Create user</a>
+            </li>
+            {% endif %}
+            {% if 'add_role' in all_permissions %}
+            <li>
+            <a href="{{ url_for('add_role') }}">Create role</a>
+            </li>
             {% endif %}
         </div>
         {% endif %}

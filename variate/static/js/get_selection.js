@@ -28,6 +28,33 @@ function type_input(element_id, value) {
     document.getElementById(element_id).value=value;
 }
 
+function get_input_value(element_id) {
+    let input_value = document.getElementById(element_id).value;
+    return input_value
+}
+
+function selected_into_input(select_value, input_element_id) {
+    let origin_value = get_input_value(input_element_id)
+    if (origin_value.length === 0){
+        origin_value = select_value
+    }else {
+        if(origin_value.search(select_value) === -1){
+            origin_value = origin_value+','+select_value
+        }else{
+            if(origin_value.search(select_value+',') === -1){
+                if(origin_value.search(','+select_value) === -1){
+                    origin_value = origin_value.replace(select_value, '')
+                }else {
+                    origin_value = origin_value.replace(','+select_value, '')
+                }
+            }else {
+                origin_value = origin_value.replace(select_value+',', '')
+            }
+        }
+    }
+    type_input(input_element_id, origin_value)
+}
+
 function getCreatorList(){
     $.ajax({
         url: "/get_all_creators",

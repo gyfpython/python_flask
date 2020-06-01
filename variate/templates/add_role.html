@@ -1,0 +1,25 @@
+{% extends "layout.html" %}
+<script src="{{ url_for('static', filename='js/get_selection.js') }}"></script>
+{% block body %}
+{% if session.logged_in %}
+<h2>Create Note</h2>
+<form action="{{ url_for('add_role')}}" method=post class=add-role>
+    <dl>
+        <dt>Role Name:
+        <dd><input type=text size=30 name=role_name>
+        <dt>Permissions:
+        <dd>
+        <input id="show_select_permission" size=30 name="permissions" placeholder="select permissions" type="text" readonly>
+        <dd>
+        <select multiple="multiple">
+            {% for permission in whole_permissions %}
+            <option onclick="selected_into_input('{{ permission.permission_name }}', 'show_select_permission')">
+                {{ permission.permission_name }}
+            </option>
+            {% endfor %}
+        </select>
+        <input type=submit value=Submit>
+    </dl>
+</form>
+{% endif %}
+{% endblock %}
