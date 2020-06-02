@@ -2,3 +2,5 @@ Flask==1.1.1
 mysql-connector-python==8.0.19
 SQLAlchemy==1.2.19
 redis>=3.5.2
+PyMysql
+flask_sqlalchemy
