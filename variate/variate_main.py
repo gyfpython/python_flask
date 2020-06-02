@@ -56,6 +56,9 @@ def get_all_perm(username: str):
 
 @app.route('/')
 def show_entries():
+    search_condition = dict(title='', sort='id',
+                            catalog=-1, create_by='all')
+    session['search_condition'] = search_condition
     all_entry = Entry.query.order_by('title').paginate(1, 10, error_out=False)
     catalog_entities = redis_operate.get_json_value(RedisKey.catalog_entities)
     if session.get('logged_in'):
