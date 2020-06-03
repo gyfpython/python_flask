@@ -11,7 +11,7 @@ from variate.paras_assert.parameters_assert import check_username_valid
 from variate.redis_operation.redis_get_set import RedisOperation
 from variate.redis_operation.redis_key import RedisKey
 from variate.sql_content.sql_commond import SqlCom
-from variate.sql_content.tables.tables_define import Users, Entry
+from variate.sql_content.tables.tables_define import *
 from variate.update_cache.catalog_cache import UpdateCatalogCache
 from variate.update_cache.entry_cache import UpdateEntryCache
 from variate.sql_content.base_database import db
@@ -256,8 +256,25 @@ def add_role():
     if request.method == 'GET':
         return render_template('add_role.html', whole_permissions=whole_permissions)
     elif request.method == 'POST':
-        # TODO
-        return redirect(url_for('show_entries'))
+        if not request.form['role_name']:
+            flash('role name cannot be empty')
+            return render_template('add_role.html', whole_permissions=whole_permissions)
+        if not check_username_valid(request.form['role_name']):
+            flash('role name cannot contain =, \', \", !, ;, %')
+            return render_template('add_role.html', whole_permissions=whole_permissions)
+        if Roles.query.filter_by(roleName=request.form['role_name']).first():
+            flash('role name already existed')
+            return render_template('add_role.html', whole_permissions=whole_permissions)
+        if not request.form['description']:
+            flash('description cannot be empty')
+            return render_template('add_role.html', whole_permissions=whole_permissions)
+        if not request.form['permissions']:
+            flash('permissions cannot be empty')
+            return render_template('add_role.html', whole_permissions=whole_permissions)
+        new_permissions = request.form['permissions'].split(',')
+        print(new_permissions)
+        # command.add_new_role(request.form['role_name'], request.form['description'], new_permissions)
+        return render_template('add_role.html', whole_permissions=whole_permissions)
     else:
         return redirect(url_for('show_entries'))
 

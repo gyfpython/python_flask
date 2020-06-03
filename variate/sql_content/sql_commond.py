@@ -131,6 +131,13 @@ class SqlCom(object):
             return result
         return None
 
+    def get_max_role_code(self):
+        get_max = "select max(roleCode) from roles;"
+        result = self.database.select_data(get_max)
+        if result:
+            return result[0][0]
+        return None
+
     # permissions
     def get_whole_permission_tree(self):
         get_a_tree_sql = "select permissionName, permissionCode from permissions"
@@ -147,6 +154,15 @@ class SqlCom(object):
         if result:
             return result
         return None
+
+    def add_new_role(self, role_name: str, description: str, permissions: list):
+
+        role_code = int(self.get_max_role_code()) + 1
+        insert_new_role = "insert into roles (roleName, roleCode, description, createBy)" \
+                          " values ({'role_name'}, {role_code}, {'desc'}, 'admin');"\
+            .format(role_name=role_name, role_code=role_code, desc=description)
+        self.database.connect_db(insert_new_role)
+        # TODO add role_permission
 
 
 
