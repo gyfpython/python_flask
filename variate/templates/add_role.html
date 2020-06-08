@@ -2,7 +2,7 @@
 <script src="{{ url_for('static', filename='js/get_selection.js') }}"></script>
 {% block body %}
 {% if session.logged_in %}
-<h2>Create Note</h2>
+<h2>Create Role</h2>
 <form action="{{ url_for('add_role')}}" method=post class=add-role>
     <dl>
         <dt>Role Name:

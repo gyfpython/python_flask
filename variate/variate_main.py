@@ -273,7 +273,8 @@ def add_role():
             return render_template('add_role.html', whole_permissions=whole_permissions)
         new_permissions = request.form['permissions'].split(',')
         print(new_permissions)
-        # command.add_new_role(request.form['role_name'], request.form['description'], new_permissions)
+        command.add_new_role(request.form['role_name'], request.form['description'], new_permissions)
+        flash('create new role %s success ') % request.form['role_name']
         return render_template('add_role.html', whole_permissions=whole_permissions)
     else:
         return redirect(url_for('show_entries'))

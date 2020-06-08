@@ -155,13 +155,24 @@ class SqlCom(object):
             return result
         return None
 
-    def add_new_role(self, role_name: str, description: str, permissions: list):
+    def add_role_permission_line(self, role_code: int, permission_code: int):
+        insert_sql = "insert into role_permissions (permission, roleCode, createTime, createBy) " \
+                     "values ({permission}, {roleCode}, '{createTime}', 'admin');"\
+            .format(permission=permission_code, roleCode=role_code, createTime=datetime.datetime.now())
+        self.database.connect_db(insert_sql)
 
+    def add_new_role(self, role_name: str, description: str, permissions: list):
         role_code = int(self.get_max_role_code()) + 1
-        insert_new_role = "insert into roles (roleName, roleCode, description, createBy)" \
-                          " values ({'role_name'}, {role_code}, {'desc'}, 'admin');"\
-            .format(role_name=role_name, role_code=role_code, desc=description)
+        insert_new_role = "insert into roles (roleName, roleCode, description, createTime, createBy) " \
+                          "values ('{roleName}', {roleCode}, '{desc}', '{createTime}', 'admin');"\
+            .format(roleName=role_name, roleCode=role_code, desc=description, createTime=datetime.datetime.now())
         self.database.connect_db(insert_new_role)
+        whole_permissions = self.get_whole_permission_tree()
+        for permission in permissions:
+            for raw in whole_permissions:
+                if permission == raw[0]:
+                    self.add_role_permission_line(role_code=role_code, permission_code=int(raw[1]))
+                    break
         # TODO add role_permission
 
 
