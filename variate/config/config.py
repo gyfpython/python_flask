@@ -41,6 +41,7 @@ class DevelopmentConfig(Config):
     REDIS_PORT = '6379'
     DECODE_RESPONSES = os.environ.get('decode_responses', True)
     REDIS_PASSWORD = 'redis_pwd'
+    REDIS_EXPIRE = 4*60*60
 
 
 class TestingConfig(Config):
@@ -61,6 +62,7 @@ class ProductionConfig(Config):
     REDIS_PORT = '6379'
     DECODE_RESPONSES = os.environ.get('decode_responses', True)
     REDIS_PASSWORD = 'redis_pwd'
+    REDIS_EXPIRE = 4*60*60
 
 
 config = {
