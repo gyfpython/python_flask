@@ -8,6 +8,11 @@ from variate.sql_content.tables.tables_define import Roles, RolePermissions
 role_manage_opt = Blueprint('role_manage_opt', __name__)
 
 
+@role_manage_opt.route('query', methods=['GET'])
+def query_roles():
+    pass
+
+
 @role_manage_opt.route('/add_role', methods=['POST'])
 def add_role():
     pass

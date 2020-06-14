@@ -8,6 +8,11 @@ from variate.sql_content.tables.tables_define import Entry
 entry_manage_opt = Blueprint('entry_manage_opt', __name__)
 
 
+@entry_manage_opt.route('query', methods=['GET'])
+def query_entries():
+    pass
+
+
 @entry_manage_opt.route('/add_entry', methods=['POST'])
 def add_entry():
     pass
