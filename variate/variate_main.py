@@ -1,11 +1,10 @@
-import datetime
 import hashlib
 
 import redis
-from flask import Flask, request, session, redirect, url_for, abort, \
+from flask import request, session, redirect, url_for, abort, \
     render_template, flash
 
-from variate import configration
+from variate import create_app
 from variate.sql_content.mysql_connection import MysqlConnection
 from variate.paras_assert.parameters_assert import check_username_valid
 from variate.redis_operation.redis_get_set import RedisOperation
@@ -18,20 +17,15 @@ from variate.sql_content.base_database import db
 from variate.update_cache.permission_cache import UpdatePermissionCache
 from variate.update_cache.role_cache import UpdateRoleCache
 
-app = Flask(__name__)
-app.permanent_session_lifetime = datetime.timedelta(seconds=2*60*60)
-app.config.from_object(configration)
 
-with app.app_context():
-    db.init_app(app)
-    # db.create_all()
+app = create_app()
 
 self_db = MysqlConnection(host=app.config['MYSQL_HOST'], username=app.config['MYSQL_USER'],
                      password=app.config['MYSQL_PASSWORD'], database=app.config['MYSQL_DB'])
 command = SqlCom(self_db)
 
 redis_pool = redis.ConnectionPool(host=app.config['REDIS_HOST'], port=app.config['REDIS_PORT'],
-                                  password=app.config['REDIS_PWD'], decode_responses=True)
+                                  password=app.config['REDIS_PASSWORD'], decode_responses=True)
 redis_connection = redis.Redis(connection_pool=redis_pool)
 redis_operate = RedisOperation(redis_connection)
 

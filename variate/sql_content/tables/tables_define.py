@@ -27,10 +27,10 @@ class Users(db.Model):
         self.roleCode = role_code
 
     def __repr__(self):
-        return '<User %r>' % self.name
+        return '<User %r>' % self.username
 
     def __str__(self):
-        return '<User %s>' % self.name
+        return '<User %s>' % self.username
 
 
 class Entry(db.Model):
