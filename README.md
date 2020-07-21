@@ -2,6 +2,12 @@
 ```
    Notes storage system(flask web framework)
 ```
+# Start server
+python variate_main.py
+```$xslt
+default server ip: 127.0.0.1
+default port :8080
+```
 # Variate 3p sw
 ```$xslt
 mysql 
